@@ -1,0 +1,32 @@
+{
+  "protected_paths": [
+    "CLAUDE.md",
+    ".claude/settings.json",
+    ".claude/settings.local.json",
+    ".claude/guard.json",
+    ".claude/hooks/**",
+    ".claude/skills/invariants/SKILL.md",
+    ".claude/agents/invariant-auditor.md"
+  ],
+  "real_data_paths": [
+    "data/real/**"
+  ],
+  "approvals_dir": ".claude/context/approvals/",
+  "rule_changes_file": ".claude/context/rule-changes.md",
+  "blocked_hosts": [
+    "<<FILL: production hostnames, one entry per host>>"
+  ],
+  "blocked_command_patterns": [
+    "git\\s+push\\b.*(--force|--force-with-lease|\\s-f\\b)",
+    "git\\s+reset\\s+--hard",
+    "rm\\s+-\\S*\\s+(/|~/?|\\./?|\\.\\./?|\\*)(\\s|$)",
+    "\\b(npm|yarn|pnpm)\\s+publish\\b",
+    "\\btwine\\s+upload\\b"
+  ],
+  "secret_command_patterns": [
+    "(^|[\\s/'\"=<>])\\.env(\\.[\\w-]+)?($|[\\s'\";|&)])",
+    "\\.(pem|key)($|[\\s'\";|&)])",
+    "(^|[;&|]\\s*|\\s)printenv(\\s|$)",
+    "(^|[;&|]\\s*)env\\s*($|[;&|])"
+  ]
+}

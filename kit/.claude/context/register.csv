@@ -1,0 +1,2 @@
+id,scenario,required_behaviour,decider,phase,fixture_id,status
+SC-000,Sample (synthetic): a required field is missing from a submission,The submission is rejected with a named reason and nothing is saved,code,1,planned,planned
