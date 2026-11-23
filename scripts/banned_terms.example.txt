@@ -1,0 +1,17 @@
+# Example of the banned terms file format. The terms below are fictional.
+#
+# Copy this file to scripts/banned_terms.txt and replace the terms with your own.
+# The real file is git-ignored on purpose: a public list of the names you must
+# not mention is itself a disclosure.
+#
+# One term per line. Lines starting with # and blank lines are ignored.
+# Matching is case-insensitive. A term of four characters or fewer matches whole
+# words only. A longer term matches anywhere, including inside another word.
+#
+# In CI, where the real file is absent, the check reads the same list from the
+# BANNED_TERMS environment variable (one term per line), for example from a
+# repository secret. If neither source exists, the check says it was skipped.
+Example Employer Ltd
+ExampleProduct
+Exemplar Client
+XYZ

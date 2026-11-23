@@ -20,6 +20,9 @@ kit/.claude/context/audit/
 source/
 BLUEPRINT_REPO_BUILD_PLAN.md
 
+# Local banned terms list (the example file next to it is committed)
+scripts/banned_terms.txt
+
 # Personal Claude Code overrides
 .claude/settings.local.json
 kit/.claude/settings.local.json
