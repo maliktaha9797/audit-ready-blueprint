@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+*.egg-info/
+
+# Secrets and local environment
+.env
+.env.*
+*.pem
+*.key
+
+# Local audit log written by the logging hook
+kit/.claude/context/audit/
+.claude/context/audit/
+
+# Build inputs that are not part of the published repository
+source/
+BLUEPRINT_REPO_BUILD_PLAN.md
+
+# Personal Claude Code overrides
+.claude/settings.local.json
+kit/.claude/settings.local.json
+CLAUDE.local.md
+
+# Operating system
+.DS_Store
