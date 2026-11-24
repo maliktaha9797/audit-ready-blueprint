@@ -105,7 +105,7 @@ The example is in [example/](../example/README.md). It is a specification, and t
 | This repository passes its own rulebook check. | executed | `tests/test_check_rulebook.py::test_this_repository_passes_its_own_checks`, and `python scripts/check_rulebook.py` exits 0. |
 | The commit history of this repository is free of banned terms. | executed | `python scripts/check_rulebook.py --strict-history` exits 0 with no history finding. Before 2026-11-24 it failed on every commit. The owner chose a new identity, and the history was rewritten that day. The rewrite changed authorship only: the tree hash was identical before and after. |
 | The CI workflow contains the steps that run the tests, the rulebook check and the mutate-to-red harness, on push and pull request. | executed | `tests/test_repository.py::test_ci_runs_the_tests_and_the_rulebook_check_on_push_and_pull_request` |
-| The CI workflow runs successfully on GitHub. | not-verifiable | It has not run. The repository has no remote. |
+| The CI workflow runs successfully on GitHub. | executed | The first run, on a private repository on 2026-11-24, succeeded: every step passed, including the tests, the rulebook check and the mutate-to-red harness. `gh run view 45390770008` shows it. The repository had no `BANNED_TERMS` secret, so the banned-terms check was skipped with a warning in that run. |
 
 ## Claims that the detections can fail
 

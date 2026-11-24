@@ -192,7 +192,7 @@ The auditor's verdict was not changed. The decision clears the block under the k
 - An approval file stays in force for as long as it exists. The owner deletes it when the entry is closed.
 - A hash chain without a saved copy of its last hash cannot show that entries were removed from the end or rewritten from an edit onwards.
 - Nothing in the build ran inside a live Claude Code session. Hooks, deny rules, `onFailure`, `args` and the `agent_type` field are untested there.
-- The CI workflow has not run on GitHub.
+- The CI workflow ran once on GitHub and passed. It ran without the `BANNED_TERMS` secret, so its banned-terms check was skipped, and only the local check has seen your list.
 - The example is a specification. Only the demonstration runs.
 
 ## 5. Owner to do before publishing
@@ -211,4 +211,4 @@ The auditor's verdict was not changed. The decision clears the block under the k
 9. **Add the companion repository link and the author line** to the README.
 10. **Add a repository secret named `BANNED_TERMS`** if you want CI to run the banned-terms check. Without it the check is skipped with a warning.
 11. **Decide whether `BUILD-REPORT.md` stays in the public repository.**
-12. **Push.** The build did not add a remote and did not push.
+12. **Make it public when you are ready.** At the owner's instruction the repository was pushed to a **private** repository on 2026-11-24. Nothing is public. Finishing items 3 to 11 first is the point of keeping it private.
