@@ -45,10 +45,31 @@ Proof is a test id or a command. An adjective is not proof. To run one test, pas
 | The `onFailure` field is accepted by the Claude Code version on the build machine (2.1.252). | not-verifiable | The documentation names 2.1.295 as the minimum. Whether an older version ignores or rejects the field was not tested. |
 | The permission deny rules block the agent. | not-verifiable | The rules are present in the settings file, and a test asserts that. Enforcement is done by Claude Code and was not exercised. |
 
+## Claims about the demonstration
+
+The demonstration is in [demo/](../demo/README.md). Each claim names the invariant it supports.
+
+| Claim | Label | Proof |
+|---|---|---|
+| The whole test suite passes. | executed | `python -m pytest` ended with the line `187 passed in 1.72s` on 2026-11-24. |
+| An edited, deleted or reordered ledger entry is detected, and `verify` reports the first bad position (INV-10). | executed | `tests/test_ledger.py::test_editing_an_entry_is_detected`, `tests/test_ledger.py::test_deleting_an_entry_is_detected`, `tests/test_ledger.py::test_reordering_entries_is_detected` |
+| The ledger offers no function that updates or deletes an entry (INV-10). | executed | `tests/test_ledger.py::test_ledger_offers_no_way_to_update_or_delete` |
+| An entry removed from the end of the ledger is not detected from the file alone, and is detected when the last hash was saved elsewhere. | executed | `tests/test_ledger.py::test_removing_the_last_entry_is_not_detected_without_an_anchor`, `tests/test_ledger.py::test_removing_the_last_entry_is_detected_with_an_anchor` |
+| A message is sent only in `live` mode to an allowlisted recipient (INV-09). | executed | `tests/test_outbound.py::test_message_is_sent_only_in_live_mode_to_an_allowlisted_recipient` |
+| A missing, unknown, misspelt or wrongly capitalised mode, a missing or empty allowlist, an unlisted recipient and a missing config each suppress the message and record why (INV-09). | executed | `tests/test_outbound.py::test_send_is_suppressed_when_mode_is_missing`, `tests/test_outbound.py::test_send_is_suppressed_when_mode_is_unknown`, `tests/test_outbound.py::test_send_is_suppressed_when_mode_is_misspelt`, `tests/test_outbound.py::test_send_is_suppressed_when_the_allowlist_is_missing`, `tests/test_outbound.py::test_send_is_suppressed_when_the_recipient_is_not_on_the_allowlist` |
+| Nothing is sent if the ledger cannot be written (INV-09, INV-10). | executed | `tests/test_outbound.py::test_nothing_is_sent_if_the_ledger_cannot_be_written` |
+| A failing rule with a proposed `verified` gives `needs_review` and a flag, and the override is recorded (INV-07). | executed | `tests/test_rules.py::test_failing_rule_with_proposed_verified_gives_needs_review_and_a_flag`, `tests/test_rules.py::test_every_decision_is_recorded_in_the_ledger_with_the_override` |
+| No proposal can make a failing rule end as verified (INV-07). | executed | `tests/test_rules.py::test_a_failing_rule_can_never_end_as_verified_whatever_is_proposed` |
+| Document text does not change a decision, because the rule reads typed fields only. | executed | `tests/test_rules.py::test_document_text_never_changes_the_decision` |
+| The demonstration follows its code rules: standard library only, no classes, decorators or lambdas, type hints and an invariant-naming docstring on every function, short modules. | executed | `tests/test_demo_code_rules.py::test_module_imports_only_the_standard_library_and_the_demo_itself`, `tests/test_demo_code_rules.py::test_module_has_no_classes_decorators_or_lambdas`, `tests/test_demo_code_rules.py::test_every_function_has_type_hints`, `tests/test_demo_code_rules.py::test_every_function_docstring_names_the_invariant_it_serves` |
+| The five exercises in the walkthrough fail the tests that the answers name. | executed | Each change was made, the four demonstration test files were run, and the failing test names were recorded. The answers in [WALKTHROUGH.md](../demo/WALKTHROUGH.md) are those results. |
+| The demonstration evaluates only the registration rule. The expired certificate, the bank name and the duplicate in the fixtures are not evaluated by any code here. | read | `demo/supplier_demo/rules.py` holds one rule. This is stated in [demo/README.md](../demo/README.md). |
+
 ## Claims that the detections can fail
 
 | Claim | Label | Proof |
 |---|---|---|
-| Every guard condition in the hooks, and every structural check on the kit, can fail: breaking each one turns its test red. | executed | `python scripts/mutate_kit.py` breaks one thing at a time, runs the test file meant to catch it, and restores the file. Last recorded result: every mutation turned its tests red, and the summary line read `mutations that stayed green or failed setup: 0`. |
+| Every guard condition in the hooks, every structural check on the kit, every behaviour of the three demonstration modules and every code rule on the demonstration can fail: breaking each one turns its test red. | executed | `python scripts/mutate_kit.py` breaks one thing at a time, runs the test file meant to catch it, and restores the file. Last recorded result on 2026-11-24: every mutation turned its tests red, and the summary line read `mutations that stayed green or failed setup: 0`. |
+| For each of the three demonstration modules, the detection reports failure once its guard is broken with `monkeypatch`. | executed | `tests/test_mutations.py::test_tamper_detection_fails_when_verify_always_reports_clean`, `tests/test_mutations.py::test_tamper_detection_fails_when_the_hash_ignores_the_content`, `tests/test_mutations.py::test_fail_closed_detection_fails_when_send_ignores_the_mode`, `tests/test_mutations.py::test_fail_closed_detection_fails_when_send_ignores_the_allowlist`, `tests/test_mutations.py::test_clamp_detection_fails_when_decide_trusts_the_proposal`, `tests/test_mutations.py::test_clamp_detection_fails_when_the_rule_always_passes` |
 
 This table is extended as each phase adds claims. Claims about links, banned terms and proof ids are added when the check script that tests them exists.

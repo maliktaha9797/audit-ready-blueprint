@@ -1,4 +1,4 @@
-"""Mutate-to-red proof for the kit's detection tests (invariant INV-06).
+"""Mutate-to-red proof for the kit's and the demo's detection tests (invariant INV-06).
 
 For each mutation: break one thing in one kit file, run the test file that is
 meant to catch it, expect at least one failure, then restore the file byte for
@@ -19,6 +19,10 @@ PATHS = "kit/.claude/hooks/guard_paths.py"
 BASH = "kit/.claude/hooks/guard_bash.py"
 HOOKS = "tests/test_hooks.py"
 STRUCTURE = "tests/test_kit_structure.py"
+LEDGER = "demo/supplier_demo/ledger.py"
+OUTBOUND = "demo/supplier_demo/outbound.py"
+RULES = "demo/supplier_demo/rules.py"
+CODE_RULES = "tests/test_demo_code_rules.py"
 
 # (name, file to break, text to find, replacement, test file that must go red)
 MUTATIONS = [
@@ -43,6 +47,23 @@ MUTATIONS = [
     ("the summary exceeds its cap", "kit/.claude/context/summary.md", "## Links", "\n" * 130 + "## Links", STRUCTURE),
     ("the phase-owner template gets frontmatter", "kit/.claude/agents/_phase-owner.template.md", "<!-- What it is: a template", "---\nname: t\ndescription: t\n---\n<!-- What it is: a template", STRUCTURE),
     ("a slot file is missing from the kit README", "kit/README.md", "`.claude/context/acceptance.md`", "`.claude/context/acceptance-x.md`", STRUCTURE),
+    ("ledger stops checking the content hash", LEDGER, 'if hash_entry(entry) != entry.get("hash"):', "if False:", "tests/test_ledger.py"),
+    ("ledger stops checking the chain", LEDGER, 'if entry.get("prev_hash") != previous:', "if False:", "tests/test_ledger.py"),
+    ("ledger accepts an entry with no actor", LEDGER, 'for required in ("actor", "policy_version"):', "for required in ():", "tests/test_ledger.py"),
+    ("ledger gains a way to overwrite the file", LEDGER, 'with open(path, "a") as handle:', 'with open(path, "w") as handle:', "tests/test_ledger.py"),
+    ("outbound ignores the mode", OUTBOUND, 'if config["mode"] != "live":', "if False:", "tests/test_outbound.py"),
+    ("outbound ignores the allowlist", OUTBOUND, "if recipient not in allowlist:", "if False:", "tests/test_outbound.py"),
+    ("outbound treats a missing mode as live", OUTBOUND, 'if "mode" not in config:', 'if "mode" not in config and False:', "tests/test_outbound.py"),
+    ("outbound sends before it records", OUTBOUND, '        ledger.append(ledger_path, entry)\n        OUTBOX.append({"recipient": recipient, "message": message})\n', '        OUTBOX.append({"recipient": recipient, "message": message})\n        ledger.append(ledger_path, entry)\n', "tests/test_outbound.py"),
+    ("rules ignore a failing rule", RULES, "if not rule_passed:", "if False:", "tests/test_rules.py"),
+    ("rules accept any proposal when the rule passes", RULES, "elif proposed_status not in ALLOWED_PROPOSALS:", "elif False:", "tests/test_rules.py"),
+    ("rules accept two empty registration numbers", RULES, 'if clean_number(given) == "":', "if False:", "tests/test_rules.py"),
+    ("demo gains a class", RULES, "def clean_number(number: str) -> str:", "class Helper:\n    pass\n\n\ndef clean_number(number: str) -> str:", CODE_RULES),
+    ("demo function loses its return type", RULES, "def clean_number(number: str) -> str:", "def clean_number(number: str):", CODE_RULES),
+    ("demo docstring stops naming its invariant", RULES, "Serves INV-07: the rule compares", "The rule compares", CODE_RULES),
+    ("demo gains a filtered comprehension", OUTBOUND, "OUTBOX: list[dict] = []", "OUTBOX: list[dict] = [{} for item in range(0) if item]", CODE_RULES),
+    ("demo imports a package outside the standard library", LEDGER, "import hashlib\n", "import hashlib\nimport requests\n", CODE_RULES),
+    ("demo module grows past the length limit", RULES, "POLICY_VERSION =", "\n" * 120 + "POLICY_VERSION =", CODE_RULES),
 ]
 
 
