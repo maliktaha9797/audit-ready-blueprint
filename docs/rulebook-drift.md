@@ -1,6 +1,6 @@
 # Rulebook drift
 
-A rulebook is the set of files that say what is allowed. In this kit those are `CLAUDE.md`, the invariants skill, the settings, the guard configuration and the workflow files. Drift is what happens when these files stop agreeing with each other.
+A rulebook is the set of files that say what is allowed. In this kit the list is `protected_paths` in `.claude/guard.json`, and that file is the only place the list is written. It covers `CLAUDE.md`, the settings, the hooks, the agents, the invariants skill, the gate and regression commands, the workflow files and the pass bar. Drift is what happens when these files stop agreeing with each other.
 
 ## How drift happens
 

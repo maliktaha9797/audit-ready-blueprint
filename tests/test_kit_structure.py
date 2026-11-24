@@ -7,6 +7,7 @@ them, which can only be checked in a live session.
 import json
 import re
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -245,7 +246,8 @@ def markdown_files():
 
 def test_no_count_of_invariants_or_rules_is_written_in_prose():
     words = r"(\d+|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)"
-    pattern = re.compile(r"\b" + words + r"\s+(invariants|rules)\b", re.I)
+    pattern = re.compile(
+        r"\b" + words + r"\s+(?:of\s+(?:the|these|those|our|its)\s+(?:[\w'-]+\s+){0,2})?(invariants|rules)\b", re.I)
     for path in markdown_files():
         assert not pattern.search(path.read_text()), str(path.relative_to(REPO))
 
@@ -253,3 +255,83 @@ def test_no_count_of_invariants_or_rules_is_written_in_prose():
 def test_no_em_dash_in_any_text_file():
     for path in markdown_files() + list(KIT.rglob("*.py")) + list((REPO / "tests").glob("*.py")):
         assert chr(0x2014) not in path.read_text(), str(path.relative_to(REPO))
+
+
+# ------------------------------------------------------- published checks work
+
+
+INVARIANT_TABLES = [SKILLS / "invariants" / "SKILL.md", REPO / "example" / "invariants.md"]
+
+
+def published_awk_command(path):
+    """The proof-and-label command, copied from a table cell exactly as published."""
+    match = re.search(r"`(awk '.*?' \.claude/context/phases/phase-\*\.md)`", path.read_text())
+    assert match, str(path) + " does not publish the proof-and-label command"
+    return match.group(1)
+
+
+@pytest.mark.parametrize("path", INVARIANT_TABLES, ids=["kit", "example"])
+def test_the_published_proof_and_label_check_flags_exactly_the_bad_lines(path, tmp_path):
+    folder = tmp_path / ".claude" / "context" / "phases"
+    folder.mkdir(parents=True)
+    (folder / "phase-1.md").write_text(
+        "- [x] Fine. Proof: `t`. Label: executed.\n"
+        "- [x] Fine too. Proof: `t`. Label: read.\n"
+        "- [x] Also fine. Proof: none possible. Label: not-verifiable.\n"
+        "- [x] No label. Proof: `t`.\n"
+        "- [x] No proof. Label: executed.\n"
+        "- [x] Empty proof. Proof: Label: executed.\n"
+        "- [x] Not a label. Proof: `t`. Label: readable.\n"
+        "- [ ] An unticked line needs nothing.\n"
+    )
+    command = published_awk_command(path)
+    assert "\\|" not in command, "an escaped pipe would break the command when it is copied"
+    result = subprocess.run(["sh", "-c", command], cwd=tmp_path, capture_output=True, text=True)
+    assert result.stdout.splitlines() == [
+        "- [x] No label. Proof: `t`.",
+        "- [x] No proof. Label: executed.",
+        "- [x] Empty proof. Proof: Label: executed.",
+        "- [x] Not a label. Proof: `t`. Label: readable.",
+    ]
+
+
+def run_published_register_check(folder, rows):
+    """Save the register script from the skill, set up a tiny project in folder, and run it."""
+    script = re.search(r"```python\n(.*?)```", (SKILLS / "scenario-register" / "SKILL.md").read_text(), re.S).group(1)
+    (folder / "scripts").mkdir(parents=True)
+    (folder / "scripts" / "check_register.py").write_text(script)
+    (folder / "tests").mkdir()
+    (folder / "tests" / "test_x.py").write_text("def test_real():\n    pass\n")
+    context = folder / ".claude" / "context"
+    context.mkdir(parents=True)
+    header = "id,scenario,required_behaviour,decider,phase,fixture_id,status\n"
+    (context / "register.csv").write_text(header + rows)
+    return subprocess.run([sys.executable, "scripts/check_register.py"], cwd=folder, capture_output=True, text=True)
+
+
+def test_the_published_register_check_passes_a_register_whose_tests_exist(tmp_path):
+    rows = "SC-1,a,b,code,1,tests/test_x.py::test_real,covered\nSC-2,c,d,human,2,planned,planned\n"
+    assert run_published_register_check(tmp_path / "case", rows).returncode == 0
+
+
+def test_the_published_register_check_rejects_a_prefix_of_a_real_test_id(tmp_path):
+    result = run_published_register_check(tmp_path / "case", "SC-1,a,b,code,1,tests/test_x.py::test_re,covered\n")
+    assert result.returncode == 1
+    assert "is not collected" in result.stdout
+
+
+def test_the_published_register_check_rejects_a_test_that_does_not_exist(tmp_path):
+    result = run_published_register_check(tmp_path / "case", "SC-1,a,b,code,1,tests/test_x.py::test_missing,red\n")
+    assert result.returncode == 1
+
+
+def test_the_published_register_check_rejects_an_unknown_decider(tmp_path):
+    result = run_published_register_check(tmp_path / "case", "SC-1,a,b,robot,1,planned,planned\n")
+    assert result.returncode == 1
+    assert "decider" in result.stdout
+
+
+def test_the_published_register_check_rejects_an_unknown_status(tmp_path):
+    result = run_published_register_check(tmp_path / "case", "SC-1,a,b,code,1,planned,done\n")
+    assert result.returncode == 1
+    assert "status" in result.stdout

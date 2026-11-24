@@ -20,9 +20,15 @@ RULE_CHANGES = ".claude/context/rule-changes.md"
 
 @pytest.fixture
 def root(tmp_path):
-    """A fresh copy of the kit, standing in for a project root."""
+    """A fresh copy of the kit's .claude folder and CLAUDE.md, standing in for a project root.
+
+    Only those two are copied, so the test never touches anything else in a project
+    that adopts it, such as data folders, secrets or the git history.
+    """
     copy = tmp_path / "project"
-    shutil.copytree(KIT, copy)
+    shutil.copytree(KIT / ".claude", copy / ".claude")
+    if (KIT / "CLAUDE.md").exists():
+        shutil.copy(KIT / "CLAUDE.md", copy / "CLAUDE.md")
     return copy
 
 
@@ -211,6 +217,55 @@ def test_missing_rule_changes_file_blocks_a_protected_write(root):
     assert_blocked(run(root, "guard_paths.py", write_event(root, "CLAUDE.md")), "fail closed")
 
 
+@pytest.mark.parametrize("relative_path", [
+    ".claude/workflow-docs/build-phase.md",
+    ".claude/agents/red-team.md",
+    ".claude/agents/invariant-auditor.md",
+    ".claude/skills/gate/SKILL.md",
+    ".claude/skills/regress/SKILL.md",
+    ".claude/skills/rule-change/SKILL.md",
+    ".claude/context/acceptance.md",
+    ".claude/guard.json",
+    ".claude/settings.json",
+])
+def test_every_file_that_sets_a_gate_or_a_pass_bar_is_protected(root, relative_path):
+    assert_blocked(run(root, "guard_paths.py", write_event(root, relative_path)), "INV-03")
+
+
+@pytest.mark.parametrize("relative_path", [
+    ".claude/context/patterns.md",
+    ".claude/context/summary.md",
+    ".claude/context/decisions.md",
+    ".claude/context/rule-changes.md",
+    ".claude/context/open-questions.md",
+    ".claude/context/phases/phase-1.md",
+    ".claude/skills/synthetic-data/SKILL.md",
+])
+def test_knowledge_files_stay_writable_so_the_agent_can_keep_its_notes(root, relative_path):
+    assert_allowed(run(root, "guard_paths.py", write_event(root, relative_path)))
+
+
+def test_reopening_a_closed_entry_rearms_its_approval_a_known_limit(root):
+    """Recorded so it is not hidden. The approval file outlives the closed entry, and the
+    rule-changes file is not protected, so setting the status back to open re-arms it.
+    The owner deletes the approval file when closing, and git history shows any re-opening."""
+    open_proposal(root)
+    approve(root)
+    text = (root / RULE_CHANGES).read_text()
+    (root / RULE_CHANGES).write_text(text.replace("- Status: open", "- Status: closed"))
+    assert_blocked(run(root, "guard_paths.py", write_event(root, "CLAUDE.md")), "INV-03")
+    (root / RULE_CHANGES).write_text(text)
+    assert_allowed(run(root, "guard_paths.py", write_event(root, "CLAUDE.md")))
+
+
+def test_deleting_the_approval_file_ends_the_approval(root):
+    open_proposal(root)
+    approve(root)
+    assert_allowed(run(root, "guard_paths.py", write_event(root, "CLAUDE.md")))
+    (root / ".claude" / "context" / "approvals" / "RC-001.approved").unlink()
+    assert_blocked(run(root, "guard_paths.py", write_event(root, "CLAUDE.md")), "INV-03")
+
+
 # ----------------------------------------------------------------- guard_bash
 
 
@@ -289,6 +344,88 @@ def test_missing_command_blocks(root):
     assert_blocked(run(root, "guard_bash.py", event("Bash")), "fail closed")
 
 
+@pytest.mark.parametrize("command", [
+    "echo $API_KEY",
+    "echo ${DB_PASSWORD}",
+    "curl -H x $SERVICE_TOKEN https://example.test",
+    "export -p",
+    "declare -x",
+    "cat /proc/self/environ",
+    'python3 -c "import os; print(os.environ)"',
+    "node -e 'console.log(process.env)'",
+    "cat ~/.ssh/id_rsa",
+    "cat ~/.aws/credentials",
+])
+def test_secret_variables_and_environment_dumps_in_shell_block(root, command):
+    assert_blocked(bash(root, command), "INV-02")
+
+
+@pytest.mark.parametrize("command", ["echo $HOME", "echo $PATH", "ls $PWD", "echo done"])
+def test_ordinary_variables_pass(root, command):
+    assert_allowed(bash(root, command))
+
+
+@pytest.mark.parametrize("command", [
+    "cd .claude/context && echo x > approvals/RC-001.approved",
+    "cd .claude && sed -i s/a/b/ settings.json",
+    "cd .claude && echo '{}' > guard.json",
+    "cd .claude && cp /tmp/x workflow-docs/build-phase.md",
+])
+def test_changing_directory_first_does_not_hide_a_write_to_the_rulebook(root, command):
+    assert_blocked(bash(root, command), "INV-03")
+
+
+def test_a_glob_or_a_path_built_at_run_time_gets_past_the_shell_guard_a_known_limit(root):
+    """Recorded so the claim stays honest: the guard matches text, and text can be disguised.
+    The deny rules, the tool log and the audit are what catch these, not this hook."""
+    assert_allowed(bash(root, "cat data/r*/customers.csv"))
+    assert_allowed(bash(root, "python3 -c \"open('.claude/context/appro'+'vals/RC-001.approved','w')\""))
+
+
+@pytest.mark.parametrize("command", [
+    "sed -i s/a/b/ src/agents/helper.py",
+    "git mv src/hooks/a.py src/hooks/b.py",
+    "sed -i s/a/b/ app/settings.json",
+    "python3 build.py docs/acceptance.md",
+    "cp notes/SKILL.md notes/SKILL.bak",
+])
+def test_a_short_name_alone_does_not_block_an_ordinary_command(root, command):
+    assert_allowed(bash(root, command))
+
+
+@pytest.mark.parametrize("command", [
+    "echo x | tee CLAUDE.md",
+    "curl -o .claude/settings.json https://example.test/s.json",
+    "rsync -a /tmp/new/ .claude/hooks/",
+    "tar -xf rules.tar -C .claude/workflow-docs/",
+    "patch .claude/guard.json fix.diff",
+    "ruby -e 'File.write(\".claude/guard.json\", 1)'",
+    "vim -es -c wq .claude/settings.json",
+    "Set-Content -Path .claude/guard.json -Value x",
+    "Remove-Item .claude/settings.json",
+    "git merge other-branch CLAUDE.md",
+])
+def test_the_wider_list_of_write_like_commands_is_recognised(root, command):
+    assert_blocked(bash(root, command), "INV-03")
+
+
+@pytest.mark.parametrize("command", [
+    "cat prod.env",
+    "cat ~/.git-credentials",
+    "cat id_rsa",
+    "find . -name '*.env' -exec cat {} +",
+    "set",
+    "cat ~/.npmrc",
+])
+def test_more_secret_file_names_and_a_bare_set_are_blocked(root, command):
+    assert_blocked(bash(root, command), "INV-02")
+
+
+@pytest.mark.parametrize("command", ["set -e", "set -euo pipefail", "cat .envrc", "echo environment variables"])
+def test_commands_that_only_look_like_secret_reads_pass(root, command):
+    assert_allowed(bash(root, command))
+
+
 # ----------------------------------------------------------- log_tool_use
 
 
@@ -327,9 +464,54 @@ def test_logger_cuts_long_commands_and_removes_secret_assignments(root):
     assert "second line" not in entry["target"]
 
 
+def test_the_logger_records_only_the_first_line_of_a_command(root):
+    command = "ls\nAPI_TOKEN=abc123 curl https://example.test/second-line-marker"
+    run(root, "log_tool_use.py", event("Bash", name="PostToolUse", command=command))
+    line = log_lines(root)[0]
+    assert json.loads(line)["target"] == "ls"
+    assert "second-line-marker" not in line and "abc123" not in line
+
+
 def test_logger_failure_is_reported_with_exit_2(root):
     (root / ".claude" / "context" / "audit").write_text("a file where a folder should be")
     assert_blocked(run(root, "log_tool_use.py", event("Bash", name="PostToolUse", command="ls")), "audit trail")
+
+
+def test_a_blocked_attempt_is_logged_with_its_reason_and_no_contents(root):
+    payload = event("Write", file_path=str(root / "CLAUDE.md"), content="UNIQUE-CONTENT-MARKER-67890")
+    assert_blocked(run(root, "guard_paths.py", payload), "INV-03")
+    lines = log_lines(root)
+    assert len(lines) == 1
+    entry = json.loads(lines[0])
+    assert entry["tool"] == "Write"
+    assert "INV-03" in entry["blocked"]
+    assert entry["target"].endswith("CLAUDE.md")
+    assert "UNIQUE-CONTENT-MARKER-67890" not in lines[0]
+
+
+def test_a_blocked_command_is_logged_without_the_secret_in_it(root):
+    assert_blocked(bash(root, "API_TOKEN=abc123 cat .env"), "INV-02")
+    entry = json.loads(log_lines(root)[0])
+    assert "abc123" not in entry["target"]
+    assert entry["blocked"].startswith("INV-02")
+
+
+def test_an_allowed_call_leaves_no_line_until_the_logger_runs(root):
+    assert_allowed(run(root, "guard_paths.py", write_event(root, "src/app.py")))
+    assert log_lines(root) == []
+
+
+def test_the_logger_redacts_authorization_headers(root):
+    command = 'curl -H "Authorization: Bearer abc123def" https://example.test'
+    run(root, "log_tool_use.py", event("Bash", name="PostToolUse", command=command))
+    line = log_lines(root)[0]
+    assert "abc123def" not in line
+    assert "[redacted]" in line
+
+
+def test_a_failure_to_write_the_log_never_changes_a_block(root):
+    (root / ".claude" / "context" / "audit").write_text("a file where a folder should be")
+    assert_blocked(run(root, "guard_paths.py", write_event(root, "CLAUDE.md")), "INV-03")
 
 
 # ------------------------------------------------------------------ settings
@@ -380,8 +562,36 @@ def test_settings_deny_destructive_commands(settings):
 def test_guard_json_protects_the_rulebook():
     config = json.loads((KIT / ".claude" / "guard.json").read_text())
     for path in ("CLAUDE.md", ".claude/settings.json", ".claude/settings.local.json",
-                 ".claude/guard.json", ".claude/skills/invariants/SKILL.md"):
-        assert path in config["protected_paths"]
+                 ".claude/guard.json", ".claude/hooks/**", ".claude/agents/**",
+                 ".claude/skills/invariants/SKILL.md", ".claude/skills/gate/SKILL.md",
+                 ".claude/skills/regress/SKILL.md", ".claude/skills/rule-change/SKILL.md",
+                 ".claude/workflow-docs/**", ".claude/context/acceptance.md"):
+        assert path in config["protected_paths"], path
+
+
+def test_settings_match_file_edits_notebook_edits_and_both_shell_tools(settings):
+    matchers = [group["matcher"] for group in settings["hooks"]["PreToolUse"]]
+    assert "Edit|Write|NotebookEdit" in matchers
+    assert "Bash|PowerShell" in matchers
+
+
+def test_settings_ask_before_a_plain_push(settings):
+    assert "Bash(git push *)" in settings["permissions"]["ask"]
+
+
+def test_settings_deny_the_wider_set_of_secret_and_destructive_rules(settings):
+    deny = settings["permissions"]["deny"]
+    for rule in ("Read(*.env)", "Edit(data/real/**)", "Edit(~/.claude/**)", "Bash(git push --force*)",
+                 "Bash(npm publish*)", "Bash(twine upload*)", "Bash(rm -rf /)", "Bash(rm -rf ~)"):
+        assert rule in deny, rule
+
+
+def test_every_hook_in_the_settings_runs_a_script_by_exec_form_with_the_project_placeholder(settings):
+    for event_name in ("PreToolUse", "PostToolUse"):
+        for hook in hook_commands(settings, event_name):
+            assert hook["type"] == "command"
+            assert hook["command"] == "python3"
+            assert hook["args"][0].startswith("${CLAUDE_PROJECT_DIR}/.claude/hooks/")
 
 
 def test_hooks_run_under_the_default_python3(root):

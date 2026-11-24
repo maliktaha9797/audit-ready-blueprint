@@ -2,7 +2,9 @@
 
 Every guard fails closed: any error in here ends in a block (exit code 2),
 because Claude Code lets a tool call go ahead when a hook exits with any other
-non-zero code.
+non-zero code. Every block is also written to the audit log, so a refused
+attempt leaves a record. Writing the log is best effort and never changes the
+outcome of a block.
 
 Invariants served: INV-01, INV-02, INV-03 (see the invariants skill).
 """
@@ -11,19 +13,65 @@ from __future__ import annotations
 import json
 import re
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 CONFIG_FILE = ROOT / ".claude" / "guard.json"
+LOG = ROOT / ".claude" / "context" / "audit" / "tool-log.jsonl"
 LIST_KEYS = (
     "protected_paths", "real_data_paths", "blocked_hosts",
     "blocked_command_patterns", "secret_command_patterns",
 )
 STRING_KEYS = ("approvals_dir", "rule_changes_file")
+SECRET_ASSIGNMENT = re.compile(r"(?i)\b(\w*(token|secret|password|passwd|key|auth)\w*)=\S+")
+AUTH_HEADER = re.compile(r"(?i)\b(authorization|bearer)\b[:=]?\s*\S+(\s+\S+)?")
+EVENT: dict = {}
+
+
+def target_of(tool_input: dict) -> str:
+    """Return a short description of what a tool call touched, never its contents.
+
+    A file path is returned as given. For a command, the first line is cut to 100
+    characters, with secret assignments and authorisation headers removed.
+    """
+    for name in ("file_path", "notebook_path", "path"):
+        if isinstance(tool_input.get(name), str):
+            return tool_input[name]
+    command = tool_input.get("command")
+    if isinstance(command, str) and command.strip():
+        first_line = command.strip().splitlines()[0]
+        first_line = SECRET_ASSIGNMENT.sub(r"\1=[redacted]", first_line)
+        return AUTH_HEADER.sub("[redacted]", first_line)[:100]
+    return ""
+
+
+def append_log(extra: dict) -> None:
+    """Append one JSON line about the current tool call to the audit log.
+
+    The line holds the time, session, agent type, tool and target. It never holds
+    file contents or command output. The audit folder is git-ignored.
+    """
+    tool_input = EVENT.get("tool_input")
+    entry = {
+        "ts": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "session": EVENT.get("session_id"),
+        "agent": EVENT.get("agent_type"),
+        "tool": EVENT.get("tool_name"),
+        "target": target_of(tool_input if isinstance(tool_input, dict) else {}),
+    }
+    entry.update(extra)
+    LOG.parent.mkdir(parents=True, exist_ok=True)
+    with LOG.open("a") as handle:
+        handle.write(json.dumps(entry) + "\n")
 
 
 def block(reason: str) -> None:
-    """Print the reason on stderr and exit 2, which blocks the tool call."""
+    """Record the attempt, print the reason on stderr and exit 2, which blocks the call."""
+    try:
+        append_log({"blocked": reason[:160]})
+    except Exception:
+        pass
     print("BLOCKED: " + reason, file=sys.stderr)
     sys.exit(2)
 
@@ -36,6 +84,7 @@ def read_event() -> dict:
         block("the hook input was not valid JSON, so the call cannot be checked (fail closed).")
     if not isinstance(event, dict):
         block("the hook input was not a JSON object (fail closed).")
+    EVENT.update(event)
     return event
 
 

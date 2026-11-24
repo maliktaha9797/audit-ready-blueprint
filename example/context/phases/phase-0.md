@@ -39,9 +39,9 @@ Small pieces of work. Each ends with the test that proves it. A ticked slice car
 
 | Check | Command or reviewer | Result | Label |
 |---|---|---|---|
-| Regression suite | `python -m pytest tests/test_ledger.py tests/test_outbound.py tests/test_rules.py tests/test_mutations.py` | `57 passed in 0.06s`, run on 2026-11-24 | executed |
+| Regression suite | `python -m pytest tests/test_ledger.py tests/test_outbound.py tests/test_rules.py tests/test_mutations.py` | `59 passed in 0.14s`, run on 2026-11-24 | executed |
 | Mutate-to-red | `python scripts/mutate_kit.py` | Every mutation turned its tests red. The summary line read `mutations that stayed green or failed setup: 0`. | executed |
-| Register check | `python3 scripts/check_register.py` | Not run. The script belongs to the build repository and is not in this one. | not-verifiable |
+| Register check | `python3 scripts/check_register.py` | Not run. The script would belong to the build and is not in this repository. | not-verifiable |
 | Invariant audit | the `invariant-auditor` agent, called by `/gate` | Not run. There is no project to audit. This repository's own audit is in `BUILD-REPORT.md`. | not-verifiable |
 | Red team | the `red-team` agent | Not applicable to phase 0, which reads no outside text. | read |
 

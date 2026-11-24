@@ -77,7 +77,7 @@ The full log is in `example/context/decisions.md`.
 
 | Issue | Severity | Status |
 |---|---|---|
-| The ledger cannot see an entry removed from its very end unless the last hash is kept elsewhere | Medium | Recorded by a test. The build would store the last hash outside the file. |
+| The ledger cannot see an entry removed from its very end, or a full rewrite, unless the last hash is kept elsewhere | Medium | Recorded by tests. The build would store the last hash outside the file. |
 | The demonstration evaluates only the registration rule | Low | Phase 1 adds the others. |
 
 ---

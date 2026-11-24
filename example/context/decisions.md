@@ -42,3 +42,10 @@ The dates are the dates this repository was built. "Decided by" names a role in 
 - **Why:** It is the smallest rule that shows the clamp working (INV-07).
 - **Supersedes:** nothing
 - **Decided by:** the product owner (a role in this fictional project)
+
+### 2026-11-24: the ledger's limit also covers a full rewrite
+
+- **Decision:** The end-of-file limit is wider than first recorded. An edit followed by recomputing every later hash also leaves a valid chain. The demonstration now records this with tests. The remedy is unchanged: the build keeps the last hash somewhere other than the ledger file and passes it to `verify`.
+- **Why:** A review of the demonstration found the wider case. The decision log is append-only, so this entry adds to the earlier one and does not change it.
+- **Supersedes:** 2026-11-24, the ledger's end-of-file limit is accepted for the demonstration (in scope only)
+- **Decided by:** the product owner (a role in this fictional project)

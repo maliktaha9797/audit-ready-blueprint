@@ -29,9 +29,9 @@ flowchart TD
 | Context | The state the workflow reads first and updates last. | `.claude/context/` |
 | Agent | The phase owner does the work in small slices. Each slice ends with a test. | `.claude/agents/<name>.md` |
 | Skills and rules | Technical guidance the agent reads, and the rules it follows. | `.claude/skills/<name>/SKILL.md` and `CLAUDE.md` |
-| Auditor | Runs the check for each invariant and returns a verdict. It has no edit or write tool, so it cannot fix what it audits. A block is cleared by a fix or by a recorded decision from the owner. | `.claude/agents/invariant-auditor.md` |
+| Auditor | Runs the check for each invariant and returns a verdict. It has no edit or write tool, so it cannot fix what it audits through the file tools. It keeps the shell, which is a stated gap. A block is cleared by a fix or by a recorded decision from the owner. | `.claude/agents/invariant-auditor.md` |
 | Human gate | A named person signs. The signature is recorded in the decision log and the phase log. | `.claude/context/decisions.md` and `.claude/context/phases/` |
-| Hooks and permissions | Run while the agent works. They block writes to protected paths and record every tool call. | `.claude/settings.json`, `.claude/hooks/` |
+| Hooks and permissions | Run while the agent works. They block writes to protected paths, and they record every successful tool call and every attempt that a guard blocks. | `.claude/settings.json`, `.claude/hooks/` |
 
 ## Where the loop can stop
 

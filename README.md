@@ -30,11 +30,11 @@ flowchart TD
 
 ## What is different here
 
-- **A reviewer that can block and cannot edit.** The auditor agent has no edit or write tool, so it cannot fix what it audits or alter the evidence. Only a fix or a recorded decision from the owner clears a block.
+- **A reviewer that can block and cannot edit.** The auditor agent has no edit or write tool, so it cannot fix what it audits or alter the evidence through the file tools. It still has the shell, which tool settings cannot take away. That gap is stated in [kit/README.md](kit/README.md), and its successful calls are logged with its agent type. Only a fix or a recorded decision from the owner clears a block.
 - **Checks that are run, with proof recorded by test id.** Every exit criterion names a test id or a command. An adjective is not proof.
 - **Three honesty labels on every criterion.** Executed, read or not-verifiable, as defined in [docs/verification.md](docs/verification.md).
 - **Rules enforced by permissions and hooks where possible, not only requested in prose.** `CLAUDE.md` is guidance that Claude Code does not enforce. The kit backs it with deny rules and hooks that fail closed.
-- **The rulebook changes only with a person's approval, and a script detects drift.** A hook blocks edits to the rulebook unless a person has created an approval file that the agent has no permission to write. A check script fails on rule files that disagree. See [docs/rulebook-drift.md](docs/rulebook-drift.md).
+- **The rulebook changes only with a person's approval, and a script detects drift.** Hooks block edits to the rulebook unless a person has created an approval file, and a permission rule and a hook both refuse the agent's writes to the folder that holds approvals. A check script catches the mechanical kinds of drift, such as counts written in prose, ids that nothing defines and links that go nowhere. See [docs/rulebook-drift.md](docs/rulebook-drift.md).
 - **Every edge case gets a test before its fix, and every detection is shown able to fail.** Each guard is broken on purpose, once, and its test must go red. `python scripts/mutate_kit.py` repeats the proof.
 
 ## Three layers
@@ -66,13 +66,14 @@ Mirrored from [docs/verification.md](docs/verification.md), which has the full l
 
 | Claim | Label | Proof |
 |---|---|---|
+| The whole test suite passes | executed | `python -m pytest` exits 0. The recorded summary line is in [docs/verification.md](docs/verification.md). |
 | The kit's file formats match the Claude Code documentation read on 2026-11-23 | read | [docs/conventions.md](docs/conventions.md) |
 | The auditor has no edit or write tool | executed | `tests/test_kit_structure.py::test_invariant_auditor_has_no_edit_or_write_tool` |
 | The auditor cannot change files through the shell | not-verifiable | It has the shell tool, and tool settings cannot remove that. Stated in [kit/README.md](kit/README.md). |
 | A write to a protected file is blocked without an approved rule change, and allowed with one | executed | `tests/test_hooks.py::test_protected_path_blocked_without_approval`, `tests/test_hooks.py::test_protected_path_allowed_with_matching_approval_and_open_proposal` |
 | The guards fail closed when their configuration is missing | executed | `tests/test_hooks.py::test_missing_guard_json_blocks_every_guard` |
 | The hooks and deny rules work inside a live Claude Code session | not-verifiable | No live session was used in the build. Try it once yourself. |
-| An edited, deleted or reordered ledger entry is found | executed | `tests/test_ledger.py::test_editing_an_entry_is_detected`, `tests/test_ledger.py::test_deleting_an_entry_is_detected` |
+| An edited, deleted or reordered ledger entry is found, unless the file is rewritten from the edit onwards or its end is cut off, which a saved copy of the last hash catches | executed | `tests/test_ledger.py::test_editing_an_entry_is_detected`, `tests/test_ledger.py::test_deleting_an_entry_is_detected`, `tests/test_ledger.py::test_an_edit_that_recomputes_every_later_hash_is_not_detected_without_an_anchor` |
 | An unsafe or missing outbound setting suppresses the message | executed | `tests/test_outbound.py::test_send_is_suppressed_when_mode_is_missing` |
 | A failing rule can never end as verified, whatever a model proposes | executed | `tests/test_rules.py::test_a_failing_rule_can_never_end_as_verified_whatever_is_proposed` |
 | Every detection can fail | executed | `python scripts/mutate_kit.py`, which ends with `mutations that stayed green or failed setup: 0` |

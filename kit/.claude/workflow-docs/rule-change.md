@@ -2,7 +2,7 @@
 
 ## Overview
 
-How the rulebook is changed. The rulebook is the set of files that decide what is allowed: `CLAUDE.md`, the invariants skill, `settings.json`, `guard.json`, the hooks and the auditor's definition. The agent proposes and stops. A person approves by hand. Only then does the agent make exactly the approved change.
+How the rulebook is changed. The rulebook is the set of files listed under `protected_paths` in `.claude/guard.json`. That list is the only place it is written. It covers `CLAUDE.md`, the settings, the hooks, the agents, the invariants skill, the gate and regression commands, the workflow files and the pass bar. The agent proposes and stops. A person approves by hand. Only then does the agent make exactly the approved change.
 
 This is the difference between a setup that can be audited and one that cannot: an agent that can rewrite its own rules can make any check pass.
 
@@ -12,7 +12,7 @@ This is the difference between a setup that can be audited and one that cannot: 
 
 | Change | Kind | Process |
 |---|---|---|
-| Adding, removing or loosening a prohibition, an invariant, a permission, a hook, or a protected path | Rule | This workflow |
+| Adding, removing or loosening a prohibition, an invariant, a permission, a hook, an agent's tools, a workflow step, the gate or regression command, the pass bar, or a protected path | Rule | This workflow |
 | Adding a violation signature to the invariants skill | Rule | This workflow, because it changes what the auditor looks for |
 | Recording a pattern, a gotcha, context, or a lesson learnt | Knowledge | The agent updates the file and appends to the log |
 
@@ -30,10 +30,10 @@ If a change would make a check easier to pass, it is a rule change.
    Files: <the files the approval covers, comma separated>
    ```
 
-   The agent cannot create this file. A permission rule and a hook both stop it, so the agent cannot approve its own change.
+   The agent has no permitted way to create this file. A permission rule and a hook both refuse its writes to the approvals folder, and the shell guard refuses the write-like commands it recognises when they name the folder. A writer it does not recognise, or a path built at run time, can get past a text check.
 4. **If the owner declines,** set the entry's status to `declined`, note the owner's reason, and stop.
 5. **Apply exactly the proposed change.** Edit only the files named in the approval, and only as the entry describes. If more is needed, write a new proposal.
-6. **Close the entry.** Set its status to `closed` and fill in the commit id and date. Closing it also ends the approval: the hook no longer lets the files be edited.
+6. **Close the entry.** Set its status to `closed` and fill in the commit id and date. Closing it ends the approval: the hook no longer lets the files be edited. Then ask the owner to delete the approval file, because it would come back into force if the entry were ever set to open again. Ids are never reused.
 7. **Log it.** Append an entry to `decisions.md` with the owner's name, the date and what changed.
 8. **Run the checks.** Run `pytest tests/test_hooks.py` and `<<FILL: the project's rulebook check command, for example python3 scripts/check_rulebook.py>>`. Record both in the phase log, labelled executed.
 

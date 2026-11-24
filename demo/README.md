@@ -1,6 +1,6 @@
 # The demonstration
 
-A small piece of working code that proves three of the kit's invariants. It is written to be read: the code is plain, every function has a docstring and type hints, and each module is about a hundred lines or fewer. A reader who is learning Python should be able to explain every line, and [WALKTHROUGH.md](WALKTHROUGH.md) does that.
+A small piece of working code that proves the kit's invariants INV-07, INV-09 and INV-10. It is written to be read: the code is plain, every function has a docstring and type hints, and each module is about a hundred lines or fewer. A reader who is learning Python should be able to explain every line, and [WALKTHROUGH.md](WALKTHROUGH.md) does that.
 
 It does not build a supplier onboarding tool. It shows three building blocks that such a tool would need if its decisions had to be traced to a rule and to a person.
 
@@ -69,4 +69,4 @@ Written so a beginner can read every line, and checked by `tests/test_demo_code_
 
 - It is not a supplier onboarding tool. It evaluates one rule. The other scenarios are fixtures that a larger build would test.
 - It calls no model and no network. The "model" is an argument named `proposed_status`, and "sending" adds to a list in memory.
-- The ledger cannot see an entry removed from the very end of the file, because the remaining entries still form a valid chain. `verify` can catch that if it is given the last hash saved somewhere else. A test records this limit.
+- The ledger stops a casual change, not a determined one. It cannot see an entry removed from the very end of the file, or an edit followed by recomputing every later hash, because what remains is still a valid chain. `verify` catches both if it is given the last hash saved somewhere else. Tests record these limits.

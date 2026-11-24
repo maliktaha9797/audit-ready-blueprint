@@ -1,6 +1,6 @@
 ---
 name: rule-change
-description: Propose a change to the rulebook (CLAUDE.md, the invariants skill, settings, hooks, guard.json or the auditor) and stop for a person's approval. Run it yourself with /rule-change and a description. Claude does not start it on its own.
+description: Propose a change to the rulebook (the files listed under protected_paths in guard.json) and stop for a person's approval. Run it yourself with /rule-change and a description. Claude does not start it on its own.
 disable-model-invocation: true
 argument-hint: "[file and what to change]"
 ---

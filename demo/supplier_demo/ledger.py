@@ -74,9 +74,10 @@ def verify(path: str, expected_last_hash: str | None = None) -> dict:
     Returns {"ok": True, "entries": n} or {"ok": False, "index": i, "reason": text}.
     Serves INV-10: an edited, removed or reordered entry is found here.
 
-    An entry removed from the END leaves a valid chain, so the file alone cannot
-    show it. Save the last hash somewhere else and pass it as expected_last_hash
-    to catch that case too.
+    The chain stops a casual change, not a determined one. An entry removed from
+    the END leaves a valid chain, and so does an edit followed by recomputing every
+    later hash. The file alone cannot show either. Save the last hash somewhere
+    else and pass it as expected_last_hash to catch both.
     """
     try:
         with open(path) as handle:
@@ -97,5 +98,5 @@ def verify(path: str, expected_last_hash: str | None = None) -> dict:
             return problem(index, "the entry was changed after it was written")
         previous = entry["hash"]
     if expected_last_hash is not None and expected_last_hash != previous:
-        return problem(len(lines), "the record ends earlier than expected")
+        return problem(len(lines), "the last entry is not the one saved elsewhere: the record was shortened or rewritten")
     return {"ok": True, "entries": len(lines)}

@@ -1,6 +1,6 @@
 # The example: Northgate Supplier Desk
 
-This folder is the specification side only. It shows the kit's slots filled in for one fictional project, and the questionnaire that leads there. The full build lives in a separate repository, and nothing here claims that the build exists. The only running code that belongs to this example is the small demonstration in [demo/](../demo/README.md), and every statement in this folder about what is verified is limited to what that demonstration tests.
+This folder is the specification side only. It shows the kit's slots filled in for one fictional project, and the questionnaire that leads there. The full build is meant to live in a separate repository. Nothing in this repository can show that it exists or how far it has got, so nothing here claims that it does. The only running code that belongs to this example is the small demonstration in [demo/](../demo/README.md), and every statement in this folder about what is verified is limited to what that demonstration tests.
 
 ## The fictional project
 
@@ -19,7 +19,7 @@ Every company, person and record in this folder is invented. The registry, the t
 | [questionnaire-answers.md](questionnaire-answers.md) | The method's questionnaire, answered for this project, including the assurance group. It is the proof that the method produces the rest. |
 | [CLAUDE.md](CLAUDE.md) | The kit's `CLAUDE.md` with every slot filled. |
 | [plan.md](plan.md) | A short phased plan, with exit criteria and a human gate for each phase. |
-| [invariants.md](invariants.md) | The kit's invariants plus four that belong to this domain, each with a check. |
+| [invariants.md](invariants.md) | The kit's invariants plus those that belong to this domain, each with a check. |
 | [register.csv](register.csv) | The scenario register. |
 | [acceptance.md](acceptance.md) | An unsigned draft of the pass bar, to show the format. |
 | [context/](context/summary.md) | An illustrative trail for phase 0: summary, decision log and phase log. |
@@ -37,7 +37,7 @@ The files sit in this folder so they are easy to browse and so that Claude Code 
 | `context/summary.md`, `context/decisions.md` | `.claude/context/summary.md`, `.claude/context/decisions.md` |
 | `context/phases/phase-0.md` | `.claude/context/phases/phase-0.md` |
 
-The commands in `CLAUDE.md` and the paths in the checks refer to the separate build repository. Where a check can be run against this repository, because the demonstration or the kit's hook tests cover it, the file names the test id. Everything else is marked planned.
+The commands in `CLAUDE.md` and the paths in the checks refer to the build, which would be a separate repository. Where a check can be run against this repository, because the demonstration or the kit's hook tests cover it, the file names the test id. Everything else is marked planned.
 
 ## How to read the labels
 

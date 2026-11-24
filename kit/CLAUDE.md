@@ -83,7 +83,7 @@ Each line ends with the id of the invariant whose check catches a breach. The id
 - Read or print secrets. (INV-02)
 - Mark a criterion done that was not executed. (INV-04)
 - Weaken, skip or reinterpret an invariant to make a gate pass. (INV-03)
-- Edit the rulebook (this file, the invariants skill, settings, hooks) without an approved rule change. (INV-03)
+- Edit the rulebook (the files listed under `protected_paths` in `.claude/guard.json`) without an approved rule change. (INV-03)
 - Fix a failed detection by matching the exact test input. (INV-06)
 - Re-run a flaky test until it passes. (INV-04)
 - Let a model decide routing, state changes or approval. (INV-08)
@@ -102,7 +102,7 @@ Proof is a test id or a command. An adjective such as "robust" or "thoroughly te
 ## Changing the rules
 
 - **Knowledge** (patterns, gotchas, context, the summary): update the file and append a line to the log.
-- **Rules** (the prohibitions above, the invariants, settings, `guard.json`, hooks, the auditor): write a proposal with `/rule-change`, stop, and wait for a person to approve it. Then make exactly the approved change. The hooks enforce this for the protected files listed in `.claude/guard.json`.
+- **Rules** (the files listed under `protected_paths` in `.claude/guard.json`: the prohibitions above, the invariants, settings, hooks, agents, workflow files, the gate and regression commands, and the pass bar): write a proposal with `/rule-change`, stop, and wait for a person to approve it. Then make exactly the approved change. The hooks enforce this for the protected files listed in `.claude/guard.json`.
 
 If a change would make a check easier to pass, it is a rule change.
 

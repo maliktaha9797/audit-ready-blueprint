@@ -132,7 +132,7 @@ def verify(path: str, expected_last_hash: str | None = None) -> dict:
             return problem(index, "the entry was changed after it was written")
         previous = entry["hash"]
     if expected_last_hash is not None and expected_last_hash != previous:
-        return problem(len(lines), "the record ends earlier than expected")
+        return problem(len(lines), "the last entry is not the one saved elsewhere: ...")
     return {"ok": True, "entries": len(lines)}
 ```
 
@@ -145,7 +145,7 @@ def verify(path: str, expected_last_hash: str | None = None) -> dict:
 - `entry.get("prev_hash") != previous` asks: does this entry point back at the entry before it? If an entry was **removed** or two were **swapped**, the answer is no, and we report the position.
 - `hash_entry(entry) != entry.get("hash")` recomputes the fingerprint from the content and compares it with the one stored. If someone **edited** the entry, the two differ.
 - `previous = entry["hash"]` moves on: the next entry should point at this one.
-- The last check, `expected_last_hash`, is optional. If a copy of the final fingerprint was saved somewhere else, an entry removed from the very end shows up as a mismatch. Without it, removing the last entry leaves a valid chain, and nothing can tell. A test records that limit.
+- The last check, `expected_last_hash`, is optional. If a copy of the final fingerprint was saved somewhere else, an entry removed from the very end shows up as a mismatch, and so does a file whose every fingerprint was recomputed after an edit. Without it, both leave a valid chain, and nothing can tell. The chain stops a casual change and does not stop a careful one. Two tests record that limit.
 - If nothing was wrong, `verify` returns `{"ok": True, "entries": n}`.
 
 ---
@@ -301,7 +301,7 @@ Notice what is **not** here: the supplier's document text. The rule reads typed 
 
 | Module | Tests | What they show |
 |---|---|---|
-| `ledger.py` | `tests/test_ledger.py` | An edit, a deletion and a reordering are each found at the right position. The limit at the end of the file is recorded. There is no way to update or delete. |
+| `ledger.py` | `tests/test_ledger.py` | An edit, a deletion and a reordering are each found at the right position. The limits at the end of the file, and after a full rewrite, are recorded. There is no way to update or delete. |
 | `outbound.py` | `tests/test_outbound.py` | One test for each way a setting can be wrong, plus the single case that sends. Every outcome is in the ledger. |
 | `rules.py` | `tests/test_rules.py` | A failing rule with `verified` proposed gives `needs_review` and a flag. A passing rule passes. All six synthetic suppliers are used. |
 | All three | `tests/test_mutations.py` | Break each guard once and watch its detection report failure. |

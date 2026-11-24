@@ -5,8 +5,13 @@
     ".claude/settings.local.json",
     ".claude/guard.json",
     ".claude/hooks/**",
+    ".claude/agents/**",
     ".claude/skills/invariants/SKILL.md",
-    ".claude/agents/invariant-auditor.md"
+    ".claude/skills/gate/SKILL.md",
+    ".claude/skills/regress/SKILL.md",
+    ".claude/skills/rule-change/SKILL.md",
+    ".claude/workflow-docs/**",
+    ".claude/context/acceptance.md"
   ],
   "real_data_paths": [
     "data/real/**"
@@ -24,9 +29,15 @@
     "\\btwine\\s+upload\\b"
   ],
   "secret_command_patterns": [
-    "(^|[\\s/'\"=<>])\\.env(\\.[\\w-]+)?($|[\\s'\";|&)])",
+    "(^|[\\s/'\"=<>])[\\w.*-]*\\.env(\\.[\\w-]+)?($|[\\s'\";|&)])",
     "\\.(pem|key)($|[\\s'\";|&)])",
     "(^|[;&|]\\s*|\\s)printenv(\\s|$)",
-    "(^|[;&|]\\s*)env\\s*($|[;&|])"
+    "(^|[;&|]\\s*)(env|set)\\s*($|[;&|])",
+    "\\b(export\\s+-p|declare\\s+-[a-z]*[xp])\\b",
+    "/proc/[\\w/]*/environ",
+    "os\\.environ|process\\.env|getenv\\(",
+    "\\$\\{?\\w*(key|token|secret|password|passwd|auth)\\w*",
+    "\\.(ssh|aws)/|\\.netrc|\\.pgpass|\\.npmrc|\\.pypirc|\\.git-credentials",
+    "\\bid_(rsa|dsa|ecdsa|ed25519)\\b"
   ]
 }

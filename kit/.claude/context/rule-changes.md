@@ -1,6 +1,6 @@
 # Rule-change proposals
 
-A rule is anything that decides what is allowed: the prohibitions in `CLAUDE.md`, the invariants skill, `settings.json`, `guard.json`, the hooks, and the auditor's definition. The agent proposes a change here, stops, and waits. A person reviews it and, if they agree, creates the approval file by hand. Only then does the agent make exactly the approved change. The process is in `.claude/workflow-docs/rule-change.md`.
+A rule is anything that decides what is allowed. The files that hold rules are listed under `protected_paths` in `.claude/guard.json`, and that list is the only place they are enumerated. The agent proposes a change here, stops, and waits. A person reviews it and, if they agree, creates the approval file by hand. Only then does the agent make exactly the approved change. The process is in `.claude/workflow-docs/rule-change.md`.
 
 ## How the hooks read this file
 

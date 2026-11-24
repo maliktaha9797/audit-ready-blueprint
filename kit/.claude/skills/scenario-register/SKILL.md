@@ -69,7 +69,7 @@ These show the format. Replace them with your own.
 
 ## The check script
 
-Save this as `scripts/check_register.py` and run `python3 scripts/check_register.py`. It exits non-zero if a row is malformed, or if a `red` or `covered` row cites a test that pytest does not collect. It is the check behind INV-05.
+Save this as `scripts/check_register.py` and run `python3 scripts/check_register.py`. It exits non-zero if a row is malformed, or if a `red` or `covered` row cites a test id that pytest does not collect. The id must match a collected id exactly: a prefix of a real id does not count. It is the check behind INV-05.
 
 ```python
 """Check the scenario register against the collected tests."""
@@ -89,10 +89,14 @@ def main() -> int:
             print("columns must be: " + ",".join(COLUMNS))
             return 1
         rows = list(reader)
-    collected = subprocess.run(
+    output = subprocess.run(
         [sys.executable, "-m", "pytest", "--collect-only", "-q"],
         capture_output=True, text=True,
     ).stdout
+    collected = set()
+    for line in output.splitlines():
+        collected.add(line)
+        collected.add(line.split("[")[0])
     problems = []
     for row in rows:
         if row["decider"] not in ("code", "model", "human"):

@@ -17,7 +17,7 @@ An exit criterion that depends on someone's say-so cannot be audited. Every veri
 
 ## Test ids
 
-A test id is the string a person can type to run exactly that test, for example `tests/test_ledger.py::test_edited_entry_is_detected`. Proof in a phase log is a test id or a command, never a sentence about quality.
+A test id is the string a person can type to run exactly that test, for example `tests/test_intake.py::test_missing_field_is_rejected_with_reason`. Proof in a phase log is a test id or a command, never a sentence about quality.
 
 Naming convention:
 
@@ -43,7 +43,7 @@ To trust a detection test, break the thing it guards once and confirm the test f
 
 If the test stays green when the guard is broken, the test detects nothing. That is a finding: fix the test, then repeat.
 
-Automate the proof where you can. A test that applies the mutation with a patching tool and asserts that the detection now reports a failure is repeatable evidence. The demonstration in this repository's `demo/` shows the pattern.
+Automate the proof where you can. A test that applies the mutation with a patching tool and asserts that the detection now reports a failure is repeatable evidence. The repository that this kit came from has a demonstration of the pattern in its `demo/` folder.
 
 Never fix a failed detection by matching the exact test input. A fix must work for a class of input. If the only change is that one string is now blocked, the detection is worse, not better.
 

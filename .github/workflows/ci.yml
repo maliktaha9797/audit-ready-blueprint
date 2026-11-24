@@ -1,0 +1,45 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Install pytest
+        run: python -m pip install pytest
+
+      - name: Run the tests
+        run: python -m pytest
+
+      # The banned terms list is private and is not in the repository. If the
+      # repository has a secret named BANNED_TERMS (one term per line), the check
+      # uses it, and also checks the commit history strictly. Without the secret the
+      # banned-terms check is skipped with a warning.
+      - name: Check the rulebook
+        run: |
+          if [ -n "$BANNED_TERMS" ]; then
+            python scripts/check_rulebook.py --strict-history
+          else
+            python scripts/check_rulebook.py
+          fi
+        env:
+          BANNED_TERMS: ${{ secrets.BANNED_TERMS }}
+
+      # Breaks each guard on purpose and confirms its tests go red. It restores
+      # every file it touches, and it runs last.
+      - name: Show that every detection can fail
+        run: python scripts/mutate_kit.py

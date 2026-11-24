@@ -167,7 +167,7 @@ def test_removing_the_last_entry_is_detected_with_an_anchor(tmp_path):
     write_lines(path, read_lines(path)[:2])
     result = ledger.verify(path, expected_last_hash=saved_elsewhere)
     assert result["ok"] is False
-    assert "ends earlier" in result["reason"]
+    assert "saved elsewhere" in result["reason"]
 
 
 def test_ledger_offers_no_way_to_update_or_delete(tmp_path):
@@ -178,3 +178,35 @@ def test_ledger_offers_no_way_to_update_or_delete(tmp_path):
     source = Path(ledger.__file__).read_text()
     assert 'open(path, "a")' in source
     assert '"w"' not in source and '"r+"' not in source
+
+
+def rewrite_every_hash_after_an_edit(path):
+    """Edit the first entry, then recompute every hash after it, as a careful forger would."""
+    entries = ledger.read_all(path)
+    entries[0]["number"] = 99
+    previous = ledger.GENESIS
+    lines = []
+    for entry in entries:
+        entry["prev_hash"] = previous
+        entry["hash"] = ledger.hash_entry(entry)
+        previous = entry["hash"]
+        lines.append(json.dumps(entry, sort_keys=True))
+    write_lines(path, lines)
+
+
+def test_an_edit_that_recomputes_every_later_hash_is_not_detected_without_an_anchor(tmp_path):
+    """A known limit, tested so it is written down: the rewritten file is a valid chain."""
+    path = new_ledger(tmp_path)
+    write_three(path)
+    rewrite_every_hash_after_an_edit(path)
+    assert ledger.verify(path)["ok"] is True
+
+
+def test_an_edit_that_recomputes_every_later_hash_is_detected_with_an_anchor(tmp_path):
+    path = new_ledger(tmp_path)
+    write_three(path)
+    saved_elsewhere = ledger.read_all(path)[-1]["hash"]
+    rewrite_every_hash_after_an_edit(path)
+    result = ledger.verify(path, expected_last_hash=saved_elsewhere)
+    assert result["ok"] is False
+    assert "saved elsewhere" in result["reason"]

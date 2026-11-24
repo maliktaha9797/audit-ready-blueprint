@@ -3,12 +3,15 @@
 
 Rules enforced:
   INV-01  No command that mentions a real-data path or a blocked production host.
-  INV-02  No command that reads a secret file or dumps the environment.
+  INV-02  No command that reads a secret file or prints a secret-looking variable,
+          or that dumps the environment in the common ways (printenv, env, export -p,
+          declare -x, /proc/*/environ, os.environ).
   INV-03  No shell command that writes to a protected file or to the approvals
-          folder without an approved rule change. This is a text check and is
-          deliberately conservative: it can block a harmless command that
-          mentions a protected file next to a write-like word. Use the Read tool
-          to read such a file.
+          folder without an approved rule change. This is a text check against a
+          fixed list of write-like commands (WRITERS). It is deliberately
+          conservative: it can block a harmless command that mentions a protected
+          file next to a write-like word, and it does not know every program that
+          can write a file. Use the Read tool to read such a file.
 
 Limit: a determined user with shell access can get around text matching. This
 hook raises the cost of breaking a rule and leaves evidence. It is not a
@@ -24,15 +27,36 @@ import sys
 from guard_lib import approved, block, load_config, read_event
 
 WRITERS = re.compile(
-    r"(>|\b(tee|mv|cp|rm|touch|truncate|ln|dd|install|sed|perl|python3?|node|ed)\b"
-    r"|\bgit\s+(checkout|restore|apply|reset|stash)\b)",
+    r"(>|\b(tee|mv|cp|rm|touch|truncate|ln|dd|install|sed|awk|perl|python3?|node|ruby|php|ed|vim?|nano"
+    r"|curl|wget|rsync|tar|unzip|patch)\b"
+    r"|\bgit\s+(checkout|restore|apply|reset|stash|am|merge|rebase|cherry-pick|pull)\b"
+    r"|\b(set|add|out|new|remove|move|copy|rename|clear)-(content|item|itemproperty)\b|\bout-file\b)",
     re.I,
 )
+CHANGES_DIRECTORY = re.compile(r"\b(cd|pushd|set-location)\b", re.I)
 
 
 def strip_glob(pattern: str) -> str:
     """Turn a path pattern such as '.claude/hooks/**' into the text '.claude/hooks'."""
     return pattern.lower().replace("\\", "/").rstrip("*").rstrip("/")
+
+
+def triggers(pattern: str, short_names: bool) -> list:
+    """Return the texts that show a command names a protected path.
+
+    The whole path always. When the command also changes directory, the last part
+    as well: 'settings.json' for a file, 'approvals/' for a folder. A command that
+    moves into a folder and then names a file by its short name would otherwise
+    slip past. The short name is used only then, because on its own it would block
+    ordinary commands that happen to name a file called settings.json somewhere else.
+    """
+    whole = strip_glob(pattern)
+    if not short_names:
+        return [whole]
+    last = whole.rsplit("/", 1)[-1]
+    if pattern.endswith(("/**", "/")):
+        last += "/"
+    return [whole, last]
 
 
 def main() -> None:
@@ -57,10 +81,11 @@ def main() -> None:
         if re.search(pattern, command, re.I):
             block("INV-02: the command reads a secret file or dumps the environment. Secrets are never readable by the agent.")
     if WRITERS.search(command):
-        if strip_glob(config["approvals_dir"]) in lowered:
+        short = bool(CHANGES_DIRECTORY.search(command))
+        if any(text in lowered for text in triggers(config["approvals_dir"], short)):
             block("INV-03: only a person may create files in the approvals folder.")
         for path in config["protected_paths"]:
-            if strip_glob(path) in lowered and not approved(strip_glob(path), config):
+            if any(text in lowered for text in triggers(path, short)) and not approved(strip_glob(path), config):
                 block("INV-03: the command appears to write to the rulebook file " + path + " with no approved rule change. Run /rule-change.")
 
 

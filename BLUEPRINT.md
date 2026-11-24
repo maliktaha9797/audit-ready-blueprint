@@ -293,7 +293,7 @@ Two cases decide which kind a change is. If a change makes a check easier to pas
 Add this layer when the answers to the assurance questions say the work must be auditable. It has five parts.
 
 1. **Invariants.** One table of statements that must always hold. Each row names the check that proves it and what enforces it: a hook, a permission, a test, or the auditor's review.
-2. **A reviewer that can block.** An auditor agent that has no edit or write tool, so it cannot fix what it audits or alter the evidence. It reports a verdict on each invariant. A block is cleared by a fix or by a recorded decision from the owner, never by the builder.
+2. **A reviewer that can block.** An auditor agent that has no edit or write tool, so it cannot fix what it audits or alter the evidence through the file tools. It keeps the shell, which is a gap, so its calls are logged. It reports a verdict on each invariant. A block is cleared by a fix or by a recorded decision from the owner, never by the builder.
 3. **A scenario register.** Every edge case is registered, with the behaviour required and who decides (code, a model, or a person), and gets a test before the fix that addresses it.
 4. **Phase logs with labelled proof.** Every exit criterion is marked **executed**, **read** or **not-verifiable**, and proof is a test id or a command, not an adjective.
 5. **Enforced guardrails.** Permissions deny what must never happen. Hooks block what needs a condition and record what was done. These raise the cost of breaking a rule and leave evidence. They are not a security boundary against a determined user with shell access.

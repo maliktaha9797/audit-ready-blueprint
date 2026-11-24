@@ -37,7 +37,7 @@ There are two different things to constrain, and they need different guardrails.
 **Rules on the agent that builds.** These govern what Claude Code may do while it writes the software.
 
 - Permission rules deny reading secrets and real-data paths, writing to the approvals folder, and destructive or publishing commands. The permission system enforces them.
-- Hooks run before a file edit and before a shell command. They block writes to the rulebook unless a person has approved the change, block commands that mention a production host or a secret, and log every tool call without its contents. They fail closed: if their configuration is missing or unreadable, they block. See [kit/README.md](kit/README.md).
+- Hooks run before a file edit and before a shell command. They block writes to the rulebook unless a person has approved the change, block commands that mention a production host or a secret, and log every successful tool call and every blocked attempt, without file contents. They fail closed: if their configuration is missing or unreadable, they block. See [kit/README.md](kit/README.md).
 - An auditor agent runs the check for each invariant and returns a verdict. It has no edit or write tool and cannot clear its own blocks.
 - A rule-change workflow lets the agent propose a change to its own rules and then stop. A person approves by creating a file that the agent is not permitted to write. The agent applies exactly what was approved. See [the workflow](kit/.claude/workflow-docs/rule-change.md).
 
