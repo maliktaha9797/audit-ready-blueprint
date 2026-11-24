@@ -65,6 +65,25 @@ The demonstration is in [demo/](../demo/README.md). Each claim names the invaria
 | The five exercises in the walkthrough fail the tests that the answers name. | executed | Each change was made, the four demonstration test files were run, and the failing test names were recorded. The answers in [WALKTHROUGH.md](../demo/WALKTHROUGH.md) are those results. |
 | The demonstration evaluates only the registration rule. The expired certificate, the bank name and the duplicate in the fixtures are not evaluated by any code here. | read | `demo/supplier_demo/rules.py` holds one rule. This is stated in [demo/README.md](../demo/README.md). |
 
+## Claims about the example
+
+The example is in [example/](../example/README.md). It is a specification, and the build it describes is not in this repository.
+
+| Claim | Label | Proof |
+|---|---|---|
+| No unfilled slot remains anywhere in the example. | executed | `tests/test_example.py::test_no_fill_slot_remains_in_the_example` |
+| Every test id the example cites as proof exists. | executed | `tests/test_example.py::test_every_test_id_cited_in_the_example_exists` |
+| A register row marked covered cites a real test, and a planned row cites none. | executed | `tests/test_example.py::test_covered_register_rows_cite_real_tests_and_planned_rows_cite_none` |
+| The register has the documented columns, a decider on every row, and unique ids. | executed | `tests/test_example.py::test_register_uses_the_documented_columns_deciders_and_unique_ids`, `tests/test_example.py::test_register_size_is_in_the_planned_range` |
+| The register covers mismatches, the three expiry boundaries, duplicates, instructions in a document, a request to skip a check, a registry that is down or conflicting, a resubmission and an approver approving their own submission. | executed | `tests/test_example.py::test_register_covers_every_family_of_scenario_the_plan_asks_for` |
+| Every invariant id cited in the example is defined in the example's table, and the table keeps every kit invariant. | executed | `tests/test_example.py::test_every_invariant_id_cited_in_the_example_is_defined_in_its_table`, `tests/test_example.py::test_the_example_table_keeps_the_kit_invariants_and_adds_its_own` |
+| Every check in the example's invariants table is marked as covered by the demonstration or planned for the build. | executed | `tests/test_example.py::test_every_check_in_the_example_invariants_is_marked_demo_or_planned_or_generic` |
+| The trail files say in their first line that they are illustrative, and the phase log shows mixed labels. A criterion labelled not-verifiable is never ticked. | executed | `tests/test_example.py::test_every_trail_file_starts_with_the_illustrative_notice`, `tests/test_example.py::test_the_phase_log_shows_mixed_labels_honestly`, `tests/test_example.py::test_criteria_marked_not_verifiable_are_not_ticked` |
+| Every ticked box in the example's phase log carries a proof and a label. | executed | `tests/test_example.py::test_ticked_boxes_in_the_phase_log_carry_a_proof_and_a_label` |
+| The example's pass bar is unsigned, and the phase log records no sign-off. | executed | `tests/test_example.py::test_the_example_pass_bar_is_unsigned`, `tests/test_example.py::test_the_example_phase_log_records_no_sign_off` |
+| Nothing in the example claims a build beyond the demonstration. | read | The folder was read in full, and searched for phrases that imply deployment, certification or an audit. No such claim was found. A search cannot prove absence, so this is labelled read. |
+| The checks the example marks Planned do not exist in this repository. | read | By definition. They describe the separate build. |
+
 ## Claims that the detections can fail
 
 | Claim | Label | Proof |

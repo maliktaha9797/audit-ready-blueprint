@@ -18,9 +18,9 @@ Tick a box only when the proof has been run. Each line records the proof and one
 
 ## Slices
 
-Small pieces of work. Each ends with the test that proves it.
+Small pieces of work. Each ends with the test that proves it. A ticked slice carries a proof and a label, like an exit criterion.
 
-- [ ] <<FILL: slice>>. Proof: <<FILL: test id>>.
+- [ ] <<FILL: slice>>. Proof: <<FILL: test id>>. Label: <<FILL: executed, read or not-verifiable>>.
 
 ## Gate results
 

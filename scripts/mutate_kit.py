@@ -23,6 +23,7 @@ LEDGER = "demo/supplier_demo/ledger.py"
 OUTBOUND = "demo/supplier_demo/outbound.py"
 RULES = "demo/supplier_demo/rules.py"
 CODE_RULES = "tests/test_demo_code_rules.py"
+EXAMPLE = "tests/test_example.py"
 
 # (name, file to break, text to find, replacement, test file that must go red)
 MUTATIONS = [
@@ -64,6 +65,13 @@ MUTATIONS = [
     ("demo gains a filtered comprehension", OUTBOUND, "OUTBOX: list[dict] = []", "OUTBOX: list[dict] = [{} for item in range(0) if item]", CODE_RULES),
     ("demo imports a package outside the standard library", LEDGER, "import hashlib\n", "import hashlib\nimport requests\n", CODE_RULES),
     ("demo module grows past the length limit", RULES, "POLICY_VERSION =", "\n" * 120 + "POLICY_VERSION =", CODE_RULES),
+    ("a slot is left in the example", "example/CLAUDE.md", "## Overview", "## <<FILL: overview>>", EXAMPLE),
+    ("a covered register row cites a test that does not exist", "example/register.csv", "test_editing_an_entry_is_detected,covered", "test_editing_an_entry_is_detected_x,covered", EXAMPLE),
+    ("the example cites an undefined invariant", "example/CLAUDE.md", "(INV-16)", "(INV-99)", EXAMPLE),
+    ("a not-verifiable criterion is ticked", "example/context/phases/phase-0.md", "- [ ] One supplier's file cannot read another's", "- [x] One supplier's file cannot read another's", EXAMPLE),
+    ("the example pass bar is signed", "example/acceptance.md", "Signed by:\nDate:", "Signed by: A Person\nDate:", EXAMPLE),
+    ("a trail file loses its illustrative notice", "example/context/summary.md", "> Illustrative trail:", "> Trail:", EXAMPLE),
+    ("a ticked slice loses its label", "example/context/phases/phase-0.md", "test_append_then_verify_passes`. Label: executed.", "test_append_then_verify_passes`.", EXAMPLE),
 ]
 
 

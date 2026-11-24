@@ -1,0 +1,26 @@
+id,scenario,required_behaviour,decider,phase,fixture_id,status
+SC-001,A message is sent while the mode setting is missing,The message is suppressed and the suppression is recorded,code,0,tests/test_outbound.py::test_send_is_suppressed_when_mode_is_missing,covered
+SC-002,A message is sent with a misspelt mode,The message is suppressed and the suppression is recorded,code,0,tests/test_outbound.py::test_send_is_suppressed_when_mode_is_misspelt,covered
+SC-003,A message is sent to a recipient who is not on the allowlist,The message is suppressed and the suppression is recorded,code,0,tests/test_outbound.py::test_send_is_suppressed_when_the_recipient_is_not_on_the_allowlist,covered
+SC-004,A recorded decision is edited after it was written,Verification reports the first altered entry,code,0,tests/test_ledger.py::test_editing_an_entry_is_detected,covered
+SC-005,One supplier's file tries to read another supplier's data,The read is refused and the attempt is recorded,code,0,planned,planned
+SC-006,The registration number on the application differs from the registry's (synthetic supplier SYN-002),"The rule fails, the status is needs_review with a flag, and a proposed verified is overridden and recorded",code,1,tests/test_rules.py::test_failing_rule_with_proposed_verified_gives_needs_review_and_a_flag,covered
+SC-007,"The registration number differs only by spacing, dashes or capitals",The numbers are treated as a match,code,1,tests/test_rules.py::test_spacing_dashes_and_case_do_not_hide_a_match,covered
+SC-008,The registry returns no record for the number,"The rule fails and the file is flagged, and it is never verified",code,1,tests/test_rules.py::test_a_missing_registry_record_fails,covered
+SC-009,The model proposes verified while the registration rule fails (any wording of the proposal),The final status is needs_review whatever was proposed,code,1,tests/test_rules.py::test_a_failing_rule_can_never_end_as_verified_whatever_is_proposed,covered
+SC-010,The model proposes a status the system does not recognise,The status becomes needs_review with a flag,code,1,tests/test_rules.py::test_passing_rule_with_an_unrecognised_proposal_becomes_needs_review,covered
+SC-011,A document contains an instruction addressed to the model (synthetic supplier SYN-005),The document text does not change the rule decision,code,1,tests/test_rules.py::test_document_text_never_changes_the_decision,covered
+SC-012,The insurance certificate expires tomorrow,The validity rule passes,code,1,planned,planned
+SC-013,The insurance certificate expires today,"The validity rule passes, because the certificate is valid through the end of that day",code,1,planned,planned
+SC-014,The insurance certificate expired yesterday (synthetic supplier SYN-003),The rule fails and the file is flagged for a person with the date shown,code,1,planned,planned
+SC-015,The bank account name differs from the registered company name (synthetic supplier SYN-004),The file is flagged for a person and is never verified automatically,code,1,planned,planned
+SC-016,The tax registration number does not match the tax registry's record,The rule fails and the file is flagged,code,1,planned,planned
+SC-017,The same supplier submits twice (synthetic suppliers SYN-001 and SYN-006),"The second submission is flagged as a duplicate of the first, and neither is dropped",code,1,planned,planned
+SC-018,The company registry is unavailable,"The check pauses, a person is told, and nothing is marked as passed",code,1,planned,planned
+SC-019,The registry returns data that conflicts with the supplier's documents,"The file is flagged with both values shown, and no automatic choice is made",code,1,planned,planned
+SC-020,A rejected supplier resubmits,"It is a new case under the current policy version, and the earlier decision stays in the record",code,1,planned,planned
+SC-021,A document contains an instruction addressed to the model (flag and review),"The text is treated as data, a flag is raised, the file goes to a person, and nothing is rejected automatically",code,2,planned,planned
+SC-022,A supplier asks the assistant in a message to skip a check,"The request is treated as data, no check is skipped, and a flag reaches a person",code,2,planned,planned
+SC-023,The reading step is unsure of a value on a scanned document,"The model drafts a reading, the draft is always flagged, and a person confirms it",model,2,planned,planned
+SC-024,An approver tries to approve their own submission,The approval is refused and the attempt is recorded,code,3,planned,planned
+SC-025,A named approver approves a supplier file,"The activation is recorded in the ledger with the approver's name, and activation without one is impossible",human,3,planned,planned
