@@ -121,6 +121,9 @@ MUTATIONS = [
     ("the committer is not scanned in history", CHECK, "%an%n%ae%n%cn%n%ce%n%B", "%an%n%ae%n%B", CHECK_TESTS),
     ("the log records the whole command, not its first line", LIB, "first_line = command.strip().splitlines()[0]", "first_line = command.strip()", HOOKS),
     ("the proof check ignores the stories", CHECK, '"example/", "stories/")', '"example/")', CHECK_TESTS),
+    ("the guards lose the shell fallback that turns a failure into a block", "kit/.claude/settings.json", " || exit 2", "", HOOKS),
+    ("the guard commands lose the quoted placeholder", "kit/.claude/settings.json", 'python3 \\"${CLAUDE_PROJECT_DIR}', 'python3 ${CLAUDE_PROJECT_DIR}', HOOKS),
+    ("the proof check ignores the build report", CHECK, '"BUILD-REPORT.md", "docs/"', '"docs/"', CHECK_TESTS),
 ]
 
 

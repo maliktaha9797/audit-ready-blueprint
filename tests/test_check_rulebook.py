@@ -207,6 +207,8 @@ def test_a_missing_test_id_cited_in_the_stories_or_the_case_study_fails(tmp_path
     assert failed_checks(story) == ["proof-integrity"]
     case = build(tmp_path / "b", {"CASE-STUDY.md": "Proof: `tests/test_sample.py::test_missing`.\n"})
     assert failed_checks(case) == ["proof-integrity"]
+    report = build(tmp_path / "c", {"BUILD-REPORT.md": "Proof: `tests/test_sample.py::test_missing`.\n"})
+    assert failed_checks(report) == ["proof-integrity"]
 
 
 def test_generic_sample_ids_in_the_kit_are_not_checked(tmp_path):

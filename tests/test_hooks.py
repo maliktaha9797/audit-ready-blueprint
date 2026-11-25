@@ -7,6 +7,7 @@ specified. They do not prove that a live Claude Code session sends the same inpu
 """
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -526,22 +527,29 @@ def hook_commands(settings, event_name):
     return [h for group in settings["hooks"][event_name] for h in group["hooks"]]
 
 
+def script_text(hook):
+    """The command and arguments of a hook, as one string, whichever form the hook uses."""
+    return hook["command"] + " " + " ".join(hook.get("args", []))
+
+
 def test_settings_register_the_guards_before_tool_use_and_the_logger_after(settings):
-    pre = " ".join(a for h in hook_commands(settings, "PreToolUse") for a in h["args"])
-    post = " ".join(a for h in hook_commands(settings, "PostToolUse") for a in h["args"])
+    pre = " ".join(script_text(h) for h in hook_commands(settings, "PreToolUse"))
+    post = " ".join(script_text(h) for h in hook_commands(settings, "PostToolUse"))
     assert "guard_paths.py" in pre and "guard_bash.py" in pre
     assert "log_tool_use.py" in post
 
 
 def test_settings_make_the_guards_fail_closed_at_the_harness(settings):
-    assert all(h["onFailure"] == "block" for h in hook_commands(settings, "PreToolUse"))
+    for hook in hook_commands(settings, "PreToolUse"):
+        assert hook["onFailure"] == "block"
+        assert hook["command"].endswith(" || exit 2"), "any failure of a guard must become exit code 2"
 
 
 def test_settings_hook_scripts_exist(settings):
     for event_name in ("PreToolUse", "PostToolUse"):
         for h in hook_commands(settings, event_name):
-            script = h["args"][0].replace("${CLAUDE_PROJECT_DIR}", str(KIT))
-            assert Path(script).is_file(), script
+            relative = re.search(r"\$\{CLAUDE_PROJECT_DIR\}/(\S+?)\"?(?: |$)", script_text(h)).group(1)
+            assert (KIT / relative).is_file(), relative
 
 
 def test_settings_deny_secret_reads_and_approval_writes(settings):
@@ -586,12 +594,42 @@ def test_settings_deny_the_wider_set_of_secret_and_destructive_rules(settings):
         assert rule in deny, rule
 
 
-def test_every_hook_in_the_settings_runs_a_script_by_exec_form_with_the_project_placeholder(settings):
-    for event_name in ("PreToolUse", "PostToolUse"):
-        for hook in hook_commands(settings, event_name):
-            assert hook["type"] == "command"
-            assert hook["command"] == "python3"
-            assert hook["args"][0].startswith("${CLAUDE_PROJECT_DIR}/.claude/hooks/")
+def test_the_guards_run_in_shell_form_with_a_quoted_placeholder_and_the_logger_in_exec_form(settings):
+    for hook in hook_commands(settings, "PreToolUse"):
+        assert hook["type"] == "command"
+        assert hook["command"].startswith('python3 "${CLAUDE_PROJECT_DIR}/.claude/hooks/')
+        assert "args" not in hook
+    for hook in hook_commands(settings, "PostToolUse"):
+        assert hook["command"] == "python3"
+        assert hook["args"][0].startswith("${CLAUDE_PROJECT_DIR}/.claude/hooks/")
+
+
+def run_guard_command(root, settings, index, payload, path="/usr/bin:/bin"):
+    """Run a guard exactly as its settings entry says, through a shell, with the placeholder in the environment."""
+    command = settings["hooks"]["PreToolUse"][index]["hooks"][0]["command"]
+    env = {"CLAUDE_PROJECT_DIR": str(root), "PATH": path}
+    return subprocess.run(["/bin/sh", "-c", command], input=json.dumps(payload), capture_output=True, text=True, env=env, cwd=root)
+
+
+def test_a_guard_that_crashes_before_its_own_code_runs_still_blocks_when_run_the_way_the_settings_run_it(root, settings):
+    (root / ".claude" / "hooks" / "guard_paths.py").write_text("import sys\nsys.exit(1)\n")
+    result = run_guard_command(root, settings, 0, write_event(root, "src/app.py"))
+    assert result.returncode == 2, "an exit code of 1 would let the call go ahead on older Claude Code versions"
+
+
+def test_a_guard_whose_script_has_a_syntax_error_still_blocks(root, settings):
+    (root / ".claude" / "hooks" / "guard_bash.py").write_text("def broken(:\n")
+    assert run_guard_command(root, settings, 1, event("Bash", command="ls")).returncode == 2
+
+
+def test_a_missing_interpreter_still_blocks(root, settings):
+    result = run_guard_command(root, settings, 0, write_event(root, "src/app.py"), path="/nonexistent")
+    assert result.returncode == 2
+
+
+def test_the_settings_command_still_allows_an_ordinary_call_and_blocks_a_protected_one(root, settings):
+    assert run_guard_command(root, settings, 0, write_event(root, "src/app.py")).returncode == 0
+    assert run_guard_command(root, settings, 0, write_event(root, "CLAUDE.md")).returncode == 2
 
 
 def test_hooks_run_under_the_default_python3(root):

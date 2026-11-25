@@ -55,7 +55,7 @@ Labels are those defined in [docs/verification.md](docs/verification.md): **exec
 |---|---|---|
 | The README is under about 150 lines and has its sections in the planned order | executed | `tests/test_repository.py::test_readme_is_short_and_has_the_sections_in_the_planned_order` |
 | The working name appears only in the README title | executed | `tests/test_repository.py::test_the_working_name_appears_only_in_the_readme_title` |
-| The case study is marked draft, with section 4 and story 01 as stubs and the drafted parts carrying a review marker | executed | `tests/test_repository.py::test_case_study_is_marked_draft_and_its_owner_sections_are_stubs`, `tests/test_repository.py::test_story_files_are_stubs_with_one_owner_prompt_each` |
+| The case study is marked draft, with section 4 and story 01 as stubs and the drafted parts carrying a review marker | executed | `tests/test_repository.py::test_case_study_is_marked_draft_with_section_4_a_stub_and_section_5_a_marked_draft`, `tests/test_repository.py::test_story_01_is_a_stub_and_the_drafted_stories_carry_a_review_marker_and_a_provenance_note` |
 | No first-person experience is written in the case study's drafted sections or in the stories | executed | `tests/test_repository.py::test_the_stories_contain_no_first_person_account`. Sections 1 to 3 of the case study were also read for it. |
 
 ### Phase 6: checks and final audit
@@ -186,13 +186,34 @@ Recorded on 2026-11-24, at the owner's instruction, in the same form.
 
 The auditor's verdict was not changed. The decision clears the block under the kit's own rule.
 
+### Live test, 2026-11-25
+
+At the owner's request the hooks were tested in real Claude Code sessions. The command-line tool had to be signed in first, which the owner did. `scripts/live_hook_test.py` builds scratch projects from the kit with an invented `.env`, runs each case as `claude -p` with the small model on Claude Code 2.1.252, and decides each result from files and the audit log, not from what the model says.
+
+| Case | Result |
+|---|---|
+| A write to a protected file | Blocked by the hook, with the invariant message, and the file unchanged |
+| `cat .env`, and an echo of a secret variable | Blocked by the shell guard |
+| A write after `cd` into the rulebook folder | Blocked by the shell guard, with no guidance file present |
+| `Read` of `.env` | Stopped by the permission deny rule |
+| An ordinary write | Allowed and logged |
+| A subagent's `ls` | Logged with the agent type of the subagent |
+| `grep -r` for the invented secret | Not blocked, and it printed the value. This is the stated limit, seen live. |
+| A guard that exits with code 1 | The edit went through on the first test, and is blocked after the fix below |
+
+**A defect the unit tests could not find.** The settings say `"onFailure": "block"`, and the report had treated that as a second layer. On Claude Code 2.1.252 the field is accepted and ignored, so a guard that exited with any code other than 2 let the call go ahead. The kit's scripts catch their own errors and exit 2, but a syntax error, a missing interpreter or a crash before the script's code runs exits with another code. The guards now run as `python3 script || exit 2`. New tests run that exact command in a shell with a crashing script, a script with a syntax error and no interpreter at all, and the live case was repeated after the change.
+
+**Two things the live runs showed about method.** A model often declines a request by itself after reading `CLAUDE.md`, which is the guidance working and says nothing about the hook. The script therefore runs the enforcement cases without `CLAUDE.md` and reports a case with no evidence as inconclusive, not as a pass. Its first version also could have reported a pass for a write that was never attempted, so each case now needs evidence that the action was tried.
+
+**What was not tested.** An interactive session. Print mode treats project hooks as trusted and shows no trust dialog.
+
 ## 4. Limits that remain
 
 - The guards match text and are not a security boundary. A glob, a variable or a path built at run time gets past the shell guard, and a determined user with shell access can get around all of it. A test records this.
 - The auditor has the shell tool and can change files through it.
 - An approval file stays in force for as long as it exists. The owner deletes it when the entry is closed.
 - A hash chain without a saved copy of its last hash cannot show that entries were removed from the end or rewritten from an edit onwards.
-- Nothing in the build ran inside a live Claude Code session. Hooks, deny rules, `onFailure`, `args` and the `agent_type` field are untested there.
+- The hooks and deny rules were tested in real Claude Code sessions in print mode only, on 2026-11-25. An interactive session, which shows a trust dialog first, was not tested.
 - The CI workflow ran once on GitHub and passed. It ran without the `BANNED_TERMS` secret, so its banned-terms check was skipped, and only the local check has seen your list.
 - The example is a specification. Only the demonstration runs.
 
@@ -206,7 +227,7 @@ The auditor's verdict was not changed. The decision clears the block under the k
 3. **Story 01 and case study section 4 are still stubs for you to write.** Nothing of that kind happened in the build, so the agent did not invent it. Stories 02, 03 and 04 and case study section 5 were drafted by the agent on 2026-11-25, at your instruction, from the record of this build. Read each, correct what you cannot stand behind, and delete its marker. `python scripts/check_rulebook.py` lists the markers that remain.
 4. **Review case study sections 1 to 3.** They describe the method only.
 5. **Read every file for confidentiality with your own eyes.** The check looks for the terms on your list. It cannot know what else you would not want to publish.
-6. **Test the hooks in a live session.** Copy the kit into a scratch project, start Claude Code there, and ask it to edit `CLAUDE.md`. The edit should be blocked with a reason. Also check that `python3` is on the path and that Claude Code is version 2.1.295 or later, which `onFailure` needs.
+6. **Test the hooks once in an interactive session.** The print-mode test is done (`python scripts/live_hook_test.py`, section 3). Copy the kit into a scratch project, start an interactive Claude Code session there, and ask it to edit `CLAUDE.md`. The edit should be blocked with a reason. Also check that `python3` is on the path. The kit now works on versions before 2.1.295, but update Claude Code if you can.
 7. **Decide whether to exclude the example `CLAUDE.md` files** with the `claudeMdExcludes` setting, so that they do not load when Claude Code works inside this repository.
 8. **Choose the repository name.** It appears only in the README title. `pyproject.toml` has its own project name.
 9. **Add the companion repository link and the author line** to the README.

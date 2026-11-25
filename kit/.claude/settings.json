@@ -35,10 +35,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3",
-            "args": [
-              "${CLAUDE_PROJECT_DIR}/.claude/hooks/guard_paths.py"
-            ],
+            "command": "python3 \"${CLAUDE_PROJECT_DIR}/.claude/hooks/guard_paths.py\" || exit 2",
             "onFailure": "block"
           }
         ]
@@ -48,10 +45,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3",
-            "args": [
-              "${CLAUDE_PROJECT_DIR}/.claude/hooks/guard_bash.py"
-            ],
+            "command": "python3 \"${CLAUDE_PROJECT_DIR}/.claude/hooks/guard_bash.py\" || exit 2",
             "onFailure": "block"
           }
         ]
