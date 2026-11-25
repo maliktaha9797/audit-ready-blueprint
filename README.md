@@ -90,7 +90,9 @@ Mirrored from [docs/verification.md](docs/verification.md), which has the full l
 
 ## The companion repository
 
-<<OWNER: link to agent repo>>
+A companion repository with the full build is planned. This section will link to it when it exists.
+
+<!-- OWNER: add the link to the companion repository here when it exists, and then reword this section. -->
 
 ## Licence and author
 

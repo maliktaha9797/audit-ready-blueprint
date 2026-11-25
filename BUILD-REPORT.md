@@ -230,7 +230,7 @@ At the owner's request the hooks were tested in real Claude Code sessions. The c
 6. **Test the hooks once in an interactive session.** The print-mode test is done (`python scripts/live_hook_test.py`, section 3). Copy the kit into a scratch project, start an interactive Claude Code session there, and ask it to edit `CLAUDE.md`. The edit should be blocked with a reason. Also check that `python3` is on the path. The kit now works on versions before 2.1.295, but update Claude Code if you can.
 7. **Decide whether to exclude the example `CLAUDE.md` files** with the `claudeMdExcludes` setting, so that they do not load when Claude Code works inside this repository.
 8. **Choose the repository name.** It appears only in the README title. `pyproject.toml` has its own project name.
-9. **Add the companion repository link and the author line** to the README.
+9. **Add the companion repository link when that repository exists.** The author line is done. The README says a companion repository is planned, and keeps a hidden reminder that `python scripts/check_rulebook.py` lists until the link is added.
 10. **Add a repository secret named `BANNED_TERMS`** if you want CI to run the banned-terms check. Without it the check is skipped with a warning.
 11. **Decide whether `BUILD-REPORT.md` stays in the public repository.**
 12. **Make it public when you are ready.** At the owner's instruction the repository was pushed to a **private** repository on 2026-11-24. Nothing is public. Finishing items 3 to 11 first is the point of keeping it private.
