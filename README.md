@@ -94,4 +94,4 @@ Mirrored from [docs/verification.md](docs/verification.md), which has the full l
 
 ## Licence and author
 
-MIT. See [LICENSE](LICENSE). Author: <<OWNER: author name and contact line>>
+MIT. See [LICENSE](LICENSE). Author: Taha Malik, [github.com/maliktaha9797](https://github.com/maliktaha9797).

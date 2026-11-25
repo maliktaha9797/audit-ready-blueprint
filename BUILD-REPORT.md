@@ -63,7 +63,7 @@ Labels are those defined in [docs/verification.md](docs/verification.md): **exec
 | Criterion | Label | Proof |
 |---|---|---|
 | `pytest` passes | executed | The recorded line is in [docs/verification.md](docs/verification.md). |
-| `python scripts/check_rulebook.py` exits zero, with only owner-stub warnings | executed | It exits zero and lists the owner stubs, and `python scripts/check_rulebook.py --strict-history` also exits zero. During the build it printed a history warning for every commit, because the commit authorship matched an entry of the private banned list. The owner supplied a publishable identity on 2026-11-24 and the history was rewritten, with the tree hash unchanged. |
+| `python scripts/check_rulebook.py` exits zero, with only owner-stub warnings | executed | It exits zero and lists the owner stubs, and `python scripts/check_rulebook.py --strict-history` also exits zero. Before the first push, the commit authorship was replaced with an identity the owner chose to publish, and the history was rewritten with the tree hash unchanged. |
 | `git status` is clean, with one commit per phase | executed | All changes are in the phase 6 commit, so `git status --porcelain` prints nothing and `git log --oneline` shows a commit for each of phases 0 to 6. Run both to confirm. |
 | `BUILD-REPORT.md` is complete | read | This file. |
 
@@ -104,7 +104,7 @@ The first audit returned BLOCK on INV-02, INV-03 and INV-06, and a long list of 
 - **INV-02:** the shell guard allowed several ways of printing secrets and dumping the environment, contrary to what the kit's documents said.
 - **INV-03:** the shell guard could be bypassed by changing directory first. Files that set gates and the pass bar were not protected. The approval of a closed entry could be brought back by re-opening the entry.
 - **INV-06:** the mutate-to-red harness did not cover several guards.
-- **Other findings:** the commit history contained a banned term, two published checks were defective, several documents claimed more than the code did, a recorded test total was stale, and some prose counts and a self-contradicting sentence remained.
+- **Other findings:** the check for banned terms did not cover commit metadata such as author and committer names and emails, two published checks were defective, several documents claimed more than the code did, a recorded test total was stale, and some prose counts and a self-contradicting sentence remained.
 
 ### What was changed
 
