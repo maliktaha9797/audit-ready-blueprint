@@ -1,7 +1,5 @@
 # A check that passed when its input was missing
 
-<!-- OWNER: review this draft, which the agent wrote from the build record, correct anything you cannot stand behind, and delete this marker when you are content to publish it. -->
-
 Drafted by the agent that built this repository, from the record of that build (the second independent audit and the test results). It describes this build. It is not an account of earlier work.
 
 Links: [the violation signatures log](../kit/.claude/skills/invariants/SKILL.md#violation-signatures-log).

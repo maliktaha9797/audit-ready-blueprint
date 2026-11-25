@@ -55,7 +55,7 @@ Labels are those defined in [docs/verification.md](docs/verification.md): **exec
 |---|---|---|
 | The README is under about 150 lines and has its sections in the planned order | executed | `tests/test_repository.py::test_readme_is_short_and_has_the_sections_in_the_planned_order` |
 | The working name appears only in the README title | executed | `tests/test_repository.py::test_the_working_name_appears_only_in_the_readme_title` |
-| The case study is marked draft, and every story and case study sections 4 and 5 carry a review marker | executed | `tests/test_repository.py::test_case_study_is_marked_draft_with_sections_4_and_5_marked_drafts`, `tests/test_repository.py::test_every_story_is_a_marked_draft_with_a_provenance_note_and_story_01_says_it_is_not_a_real_records_episode` |
+| Case study sections 4 and 5 and every story carry a note that the agent drafted them, and no review marker remains | executed | `tests/test_repository.py::test_case_study_sections_4_and_5_carry_a_provenance_note_and_no_review_marker_remains`, `tests/test_repository.py::test_every_story_carries_a_provenance_note_and_no_review_marker_and_story_01_says_it_is_not_a_real_records_episode`, `tests/test_repository.py::test_no_review_marker_remains_and_the_companion_reminder_is_the_only_owner_marker` |
 | No first-person experience is written in the case study's drafted sections or in the stories | executed | `tests/test_repository.py::test_the_stories_contain_no_first_person_account`. Sections 1 to 3 of the case study were also read for it. |
 
 ### Phase 6: checks and final audit
@@ -224,7 +224,7 @@ At the owner's request the hooks were tested in real Claude Code sessions. The c
    - **Check the new identity is the one you want public.** It is in every commit. If you change it later, repeat the rewrite and the strict check.
 
 2. **Confirm the licence and the name.** `LICENSE` is MIT with the holder you gave. Confirm both.
-3. **Review the drafted stories and case study sections 4 and 5.** The agent drafted them on 2026-11-25, at your instruction, from the record of this build. Story 01 is not a real-records episode, because none happened, and it says so. If you have a real one, replace the draft. Read each, correct what you cannot stand behind, and delete its marker. `python scripts/check_rulebook.py` lists the markers that remain.
+3. **Replace story 01 if you have a real-records episode.** The agent drafted the four stories and case study sections 4 and 5 on 2026-11-25, at your instruction, from the record of this build, and you reviewed them and removed the review markers the same day. Story 01 is not a real-records episode, because none happened, and it says so. If you have a real one, it should replace that draft. Each page keeps a visible note that the agent drafted it.
 4. **Review case study sections 1 to 3.** They describe the method only.
 5. **Read every file for confidentiality with your own eyes.** The check looks for the terms on your list. It cannot know what else you would not want to publish.
 6. **Test the hooks once in an interactive session.** The print-mode test is done (`python scripts/live_hook_test.py`, section 3). Copy the kit into a scratch project, start an interactive Claude Code session there, and ask it to edit `CLAUDE.md`. The edit should be blocked with a reason. Also check that `python3` is on the path. The kit now works on versions before 2.1.295, but update Claude Code if you can.

@@ -1,7 +1,5 @@
 # A test that could not fail
 
-<!-- OWNER: review this draft, which the agent wrote from the build record, correct anything you cannot stand behind, and delete this marker when you are content to publish it. -->
-
 Drafted by the agent that built this repository, from the record of that build (its own tests, the mutation harness and the second independent audit). It describes this build. It is not an account of earlier work.
 
 This is not the failure of fixing a detection by matching the test's input, or of re-running a flaky test until it passes. Neither happened in this build. It is the same problem seen from the test's side: a green result that does not mean the guard works. Two cases are recorded.

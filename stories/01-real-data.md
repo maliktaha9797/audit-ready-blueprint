@@ -1,7 +1,5 @@
 # Real names nearly in the repository
 
-<!-- OWNER: review this draft, which the agent wrote from the build record, correct anything you cannot stand behind, and delete this marker when you are content to publish it. -->
-
 Drafted by the agent that built this repository, from the record of that build (the build brief, the gate reports and the checks). It describes this build. It is not an account of earlier work.
 
 This is not a story about testing against real records. The agent never reached for real records in this build. It is the closest event that did happen: real names nearly entering a public repository, in a form that the kit's own real-data guard would not have caught. If the owner has an episode of the first kind, it should replace this draft.

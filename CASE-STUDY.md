@@ -1,6 +1,6 @@
 # Case study: setting up Claude Code for audited work
 
-**DRAFT.** Sections 1 to 3 describe the method as it appears in this repository, and the owner is to review them. Sections 4 and 5 were drafted by the agent that built the repository, at the owner's instruction on 2026-11-25, from the record of that build, and the owner is to review them. Nothing in this file describes a past project, and the file must not be published until the markers are gone.
+Sections 1 to 3 describe the method as it appears in this repository. Sections 4 and 5 were drafted by the agent that built the repository, at the owner's instruction on 2026-11-25, from the record of that build, and the owner reviewed them. Nothing in this file describes a past project.
 
 ---
 
@@ -53,8 +53,6 @@ The limits are stated in the kit. Hooks and deny rules raise the cost of breakin
 
 ## 4. What I stopped the agent from doing, and why
 
-<!-- OWNER: review this draft, which the agent wrote from the build record, correct anything you cannot stand behind, and delete this marker when you are content to publish it. -->
-
 Drafted by the agent that built this repository, at the owner's instruction on 2026-11-25, from the record of this build: the owner's build brief, and the points at which the agent stopped. These are rules the owner set, and the agent held to them. They are not an account of earlier work.
 
 An agent that works quickly takes the shortest path unless a rule stands in the way. In this build the owner's rules stopped the agent at several points, and each is recorded here.
@@ -68,8 +66,6 @@ An agent that works quickly takes the shortest path unless a rule stands in the 
 **Clearing a block or passing a gate.** The brief required the agent to stop at the human gates, and it stopped at each of them and waited. Later, independent audits returned BLOCK on the invariants for secrets, for the rulebook and for detections. The agent could have called them resolved after its own fixes. It did not. It reported each one, said what was fixed and what was not, and asked. The owner recorded a decision for each, and only then were they marked cleared. The rule is carried now by the human-gate stage of `kit/.claude/workflow-docs/build-phase.md` and by `kit/.claude/skills/invariants/SKILL.md`, which says that a block is cleared only by a fix or by the owner's recorded decision.
 
 ## 5. What went wrong
-
-<!-- OWNER: review this draft, which the agent wrote from the build record, correct anything you cannot stand behind, and delete this marker when you are content to publish it. -->
 
 Drafted by the agent that built this repository, from the record of that build: two independent audits by a separate read-only agent, the test results and the commit history. It describes this build, not earlier work.
 

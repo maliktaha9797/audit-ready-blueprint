@@ -2,7 +2,7 @@
 
 A story is a short account of one moment when a rule in the kit earned its place. It is written by the owner, from their own experience, and is the evidence that the rules are not theoretical.
 
-All four stories were drafted by the agent that built the repository, at the owner's instruction on 2026-11-25, from the real record of that build: the build brief, the independent audits, the test results and the commit history. They describe what the agent did and what the checks caught in this build. They are not accounts of earlier work, and they are not the owner's experience until the owner has read them, corrected them and decided to publish them as their own. Each carries a review marker until then.
+All four stories were drafted by the agent that built the repository, at the owner's instruction on 2026-11-25, from the real record of that build: the build brief, the independent audits, the test results and the commit history. They describe what the agent did and what the checks caught in this build. They are not accounts of earlier work. The owner reviewed them on 2026-11-25 and decided to publish them, and each keeps a note at the top saying that the agent drafted it from the build record.
 
 Story 01 is not about testing against real records, because that did not happen in this build: the agent never reached for real records. It is about the closest real event, real names nearly entering the repository, and it says so at the top. If the owner has a real episode of the first kind, it should replace the draft. A story is a claim about something that happened, and a draft that invented one would be worse than a stub.
 

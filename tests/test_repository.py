@@ -132,27 +132,29 @@ def test_the_working_name_appears_only_in_the_readme_title():
 
 
 STUB = r"<!-- OWNER: write this section yourself\. Prompt: .+ -->"
-REVIEW = r"<!-- OWNER: review this draft, which the agent wrote from the build record, .+ -->"
+REVIEW = r"<!-- OWNER: review this draft"
 STORY_HEADINGS = ("What the agent tried to do", "Why that would have broken a rule",
                   "What rule or check was added", "Where it lives now")
+PUBLISHED_PAGES = ("CASE-STUDY.md", "stories/01-real-data.md", "stories/02-skipped-check.md",
+                   "stories/03-gaming-the-test.md", "stories/04-rulebook-drift.md")
 
 
-def test_case_study_is_marked_draft_with_sections_4_and_5_marked_drafts():
+def test_case_study_sections_4_and_5_carry_a_provenance_note_and_no_review_marker_remains():
     text = (REPO / "CASE-STUDY.md").read_text()
-    assert "**DRAFT.**" in text.splitlines()[2]
+    assert "**DRAFT.**" not in text
+    assert "Sections 4 and 5 were drafted by the agent that built the repository" in text.splitlines()[2]
+    assert "Nothing in this file describes a past project." in text.splitlines()[2]
     section4 = text.split("## 4. ")[1].split("## 5. ")[0]
     section5 = text.split("## 5. ")[1]
     for section in (section4, section5):
-        assert len(re.findall(REVIEW, section)) == 1
         assert "Drafted by the agent" in section
     assert not re.search(STUB, text), "no stub should remain in the case study"
 
 
-def test_every_story_is_a_marked_draft_with_a_provenance_note_and_story_01_says_it_is_not_a_real_records_episode():
+def test_every_story_carries_a_provenance_note_and_no_review_marker_and_story_01_says_it_is_not_a_real_records_episode():
     for name in ("01-real-data", "02-skipped-check", "03-gaming-the-test", "04-rulebook-drift"):
         text = (REPO / "stories" / (name + ".md")).read_text()
-        assert len(re.findall(REVIEW, text)) == 1, name
-        assert len(re.findall(r"<!-- OWNER:", text)) == 1, name
+        assert not re.search(r"<!-- OWNER:", text), name
         for heading in STORY_HEADINGS:
             assert "## " + heading in text, name + ": " + heading
         assert "Drafted by the agent that built this repository" in text, name
@@ -160,6 +162,18 @@ def test_every_story_is_a_marked_draft_with_a_provenance_note_and_story_01_says_
     story_01 = (REPO / "stories" / "01-real-data.md").read_text()
     assert "This is not a story about testing against real records." in story_01
     assert "If the owner has an episode of the first kind, it should replace this draft." in story_01
+
+
+def test_no_review_marker_remains_and_the_companion_reminder_is_the_only_owner_marker():
+    for name in PUBLISHED_PAGES:
+        assert not re.search(REVIEW, (REPO / name).read_text()), name
+    markers = []
+    for relative in sorted(tracked_or_new_files()):
+        if not relative.endswith(".md") or relative.split("/")[0] in {"kit", "templates"}:
+            continue
+        markers += [(relative, found) for found in re.findall(r"<!-- OWNER:[^>]*-->", (REPO / relative).read_text())]
+    assert [name for name, _ in markers] == ["README.md"], markers
+    assert "companion repository" in markers[0][1]
 
 
 def test_the_stories_contain_no_first_person_account():
