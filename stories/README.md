@@ -2,7 +2,9 @@
 
 A story is a short account of one moment when a rule in the kit earned its place. It is written by the owner, from their own experience, and is the evidence that the rules are not theoretical.
 
-This folder holds stubs only. The agent that built the repository did not write the stories and must not: a story is a claim about something that happened, and only the person it happened to can make it.
+Story 01 is a stub, for the owner to write. Stories 02, 03 and 04 were drafted by the agent that built the repository, at the owner's instruction on 2026-11-25, from the real record of that build: the independent audits, the test results and the commit history. They describe what the agent did and what the checks caught in this build. They are not accounts of earlier work, and they are not the owner's experience until the owner has read them, corrected them and decided to publish them as their own. Each carries a review marker until then.
+
+Story 01 was not drafted because nothing of its kind happened in this build: the agent never reached for real records. A story is a claim about something that happened, and a draft that invented one would be worse than a stub.
 
 ## The format
 
@@ -21,13 +23,13 @@ One short file per story. Each has four parts, in this order.
 - Do not name any real employer, client, vendor, person or system. Say "a regulated environment" or "an audited setting".
 - Do not include real data, even a fragment, and do not quote a prompt that contained any.
 - Keep it short. A story that cannot be read in a minute is two stories.
-- When you finish a story, delete its owner marker. The check script counts the markers that remain, and lists them as a publication checklist.
+- When you finish a story, or finish reviewing a draft, delete its owner marker. The check script counts the markers that remain, and lists them as a publication checklist.
 
 ## The stories
 
 | File | Subject |
 |---|---|
 | [01-real-data.md](01-real-data.md) | A shortcut that would have used real records |
-| [02-skipped-check.md](02-skipped-check.md) | A code path that went around a required check |
-| [03-gaming-the-test.md](03-gaming-the-test.md) | A detection "fixed" by matching its test, or a flaky test re-run |
-| [04-rulebook-drift.md](04-rulebook-drift.md) | Rule files that disagreed as the rule set grew |
+| [02-skipped-check.md](02-skipped-check.md) | A check that passed when its input was missing (draft) |
+| [03-gaming-the-test.md](03-gaming-the-test.md) | A test that could not fail, which is the same problem seen from the test's side (draft) |
+| [04-rulebook-drift.md](04-rulebook-drift.md) | Rule files that disagreed as the rule set grew (draft) |

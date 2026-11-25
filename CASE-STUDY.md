@@ -1,6 +1,6 @@
 # Case study: setting up Claude Code for audited work
 
-**DRAFT.** Sections 1 to 3 describe the method as it appears in this repository, and the owner is to review them. Sections 4 and 5 are for the owner to write from their own experience. Nothing in this file describes a past project, and the file must not be published until the stubs are replaced.
+**DRAFT.** Sections 1 to 3 describe the method as it appears in this repository, and the owner is to review them. Section 4 is for the owner to write from their own experience. Section 5 was drafted by the agent that built the repository, at the owner's instruction on 2026-11-25, from the record of that build, and the owner is to review it. Nothing in this file describes a past project, and the file must not be published until the markers are gone.
 
 ---
 
@@ -57,4 +57,24 @@ The limits are stated in the kit. Hooks and deny rules raise the cost of breakin
 
 ## 5. What went wrong
 
-<!-- OWNER: write this section yourself. Prompt: Describe what went wrong, or nearly did, when building with an agent under these rules, in plain terms and without blame. Say what you changed afterwards and how you know the change works. Do not invent incidents or outcomes. If a lesson is still open, say so. -->
+<!-- OWNER: review this draft, which the agent wrote from the build record, correct anything you cannot stand behind, and delete this marker when you are content to publish it. -->
+
+Drafted by the agent that built this repository, from the record of that build: two independent audits by a separate read-only agent, the test results and the commit history. It describes this build, not earlier work.
+
+Building this repository with an agent, under the rules it describes, did not go cleanly. The places it went wrong are the best evidence that the rules are needed.
+
+**The guards were weaker than their documentation said.** The first audit returned BLOCK on the invariants for secrets and for the rulebook. The shell guard allowed `echo $API_KEY`, `export -p` and `cat /proc/self/environ`. A command that changed directory first, such as `cd .claude && sed -i ... settings.json`, wrote to a protected file. Several files that set gates and the pass bar were not protected at all. The documents said otherwise. The guard was widened, the protected set was extended, and tests were added for each route. Blocked attempts, which had left no record, are now logged.
+
+**Checks the builder published were defective.** The command that checks every ticked criterion for a proof and a label printed wrongly when copied from its table, because a table forces an escaped pipe. The script that checks the scenario register accepted a test id that was only the start of a real one. Both were rewritten, and tests now run each exactly as published.
+
+**Documents claimed more than the code did.** One said every tool call was logged, when only successful calls were. Another said the agent could not approve its own change, when a shell route to the approvals folder existed. They were corrected to state the limits, and tests record the limits that remain.
+
+**A clean result could hide a gap.** The check for banned terms looked at files and not at commit author names, messages or branch names, and its strict mode passed when there was no list to check against. A history scan was added, and strict mode now fails without a list. See [the story](stories/02-skipped-check.md).
+
+**Tests that could not fail.** One test would have stayed green if the code it guarded were removed, and a mutation of the logging code stayed green against a test written to catch it. See [the story](stories/03-gaming-the-test.md).
+
+**Rule files that disagreed.** A count written in prose, a recorded test total that went stale, a template that contradicted its own check, and several lists of what the rulebook is. See [the story](stories/04-rulebook-drift.md).
+
+How the changes are known to work: each has a test, and `python scripts/mutate_kit.py` breaks the guards and checks one at a time and confirms that the tests go red.
+
+**What is still open.** The shell guard matches text, so a glob, a path built at run time or a program it does not know gets past it, and a test records this. The owner recorded decisions that accept this limit for the secrets and rulebook invariants, and that accept the list of mutations as not exhaustive. A sandbox or an allowlist of shell commands would close the gap, and neither was built. Nothing in the build ran inside an interactive Claude Code session, so the live behaviour of the hooks and deny rules has not been checked. The last round of changes was checked by the builder and not re-audited independently.

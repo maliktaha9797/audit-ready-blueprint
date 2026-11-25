@@ -60,7 +60,7 @@ The demonstration is in [demo/](../demo/README.md). Each claim names the invaria
 
 | Claim | Label | Proof |
 |---|---|---|
-| The whole test suite passes. | executed | `python -m pytest` ended with the line `366 passed in 6.50s` on 2026-11-24, in the build environment (Python 3.12, pytest 9). |
+| The whole test suite passes. | executed | `python -m pytest` ended with the line `368 passed in 6.41s` on 2026-11-24, in the build environment (Python 3.12, pytest 9). |
 | An edited, deleted or reordered ledger entry is detected, and `verify` reports the first bad position (INV-10). | executed | `tests/test_ledger.py::test_editing_an_entry_is_detected`, `tests/test_ledger.py::test_deleting_an_entry_is_detected`, `tests/test_ledger.py::test_reordering_entries_is_detected` |
 | The ledger offers no function that updates or deletes an entry (INV-10). | executed | `tests/test_ledger.py::test_ledger_offers_no_way_to_update_or_delete` |
 | An entry removed from the end of the ledger, and an edit followed by recomputing every later hash, are not detected from the file alone. Both are detected when the last hash was saved elsewhere. | executed | `tests/test_ledger.py::test_removing_the_last_entry_is_not_detected_without_an_anchor`, `tests/test_ledger.py::test_removing_the_last_entry_is_detected_with_an_anchor`, `tests/test_ledger.py::test_an_edit_that_recomputes_every_later_hash_is_not_detected_without_an_anchor`, `tests/test_ledger.py::test_an_edit_that_recomputes_every_later_hash_is_detected_with_an_anchor` |
@@ -92,6 +92,15 @@ The example is in [example/](../example/README.md). It is a specification, and t
 | The example's pass bar is unsigned, and the phase log records no sign-off. | executed | `tests/test_example.py::test_the_example_pass_bar_is_unsigned`, `tests/test_example.py::test_the_example_phase_log_records_no_sign_off` |
 | Nothing in the example claims a build beyond the demonstration. | read | The folder was read in full, and searched for phrases that imply deployment, certification or an audit. No such claim was found. A search cannot prove absence, so this is labelled read. |
 | The checks the example marks Planned do not exist in this repository. | read | By definition. They describe the separate build. |
+
+## Claims about the drafted stories and case study section 5
+
+| Claim | Label | Proof |
+|---|---|---|
+| Stories 02, 03 and 04 and case study section 5 were drafted by the agent from the record of this build, and each carries a review marker for the owner. Story 01 and section 4 remain stubs. | executed | `tests/test_repository.py::test_story_01_is_a_stub_and_the_drafted_stories_carry_a_review_marker_and_a_provenance_note`, `tests/test_repository.py::test_case_study_is_marked_draft_with_section_4_a_stub_and_section_5_a_marked_draft` |
+| Every test id the drafts cite exists. | executed | `python scripts/check_rulebook.py`, whose proof check covers the stories and the case study, and `tests/test_check_rulebook.py::test_a_missing_test_id_cited_in_the_stories_or_the_case_study_fails` |
+| The events the drafts describe happened as described. | read | The agent checked each statement against the two audit reports, the test results and the commit history of this build. No command proves a narrative. The owner is to confirm them before publishing. |
+| The drafts contain no first-person account and no count of rules or invariants. | executed | `tests/test_repository.py::test_the_stories_contain_no_first_person_account` and the rulebook check |
 
 ## Claims about the checks and CI
 

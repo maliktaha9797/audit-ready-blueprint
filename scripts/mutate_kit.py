@@ -120,6 +120,7 @@ MUTATIONS = [
     ("only the fill marker counts as a placeholder", CHECK, 'PLACEHOLDER = re.compile(r"<<(?!OWNER)[A-Z]{3,}")', 'PLACEHOLDER = re.compile(r"<<FILL")', CHECK_TESTS),
     ("the committer is not scanned in history", CHECK, "%an%n%ae%n%cn%n%ce%n%B", "%an%n%ae%n%B", CHECK_TESTS),
     ("the log records the whole command, not its first line", LIB, "first_line = command.strip().splitlines()[0]", "first_line = command.strip()", HOOKS),
+    ("the proof check ignores the stories", CHECK, '"example/", "stories/")', '"example/")', CHECK_TESTS),
 ]
 
 

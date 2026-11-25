@@ -55,7 +55,7 @@ Labels are those defined in [docs/verification.md](docs/verification.md): **exec
 |---|---|---|
 | The README is under about 150 lines and has its sections in the planned order | executed | `tests/test_repository.py::test_readme_is_short_and_has_the_sections_in_the_planned_order` |
 | The working name appears only in the README title | executed | `tests/test_repository.py::test_the_working_name_appears_only_in_the_readme_title` |
-| The case study is marked draft, and the owner sections and stories are stubs in the agreed form | executed | `tests/test_repository.py::test_case_study_is_marked_draft_and_its_owner_sections_are_stubs`, `tests/test_repository.py::test_story_files_are_stubs_with_one_owner_prompt_each` |
+| The case study is marked draft, with section 4 and story 01 as stubs and the drafted parts carrying a review marker | executed | `tests/test_repository.py::test_case_study_is_marked_draft_and_its_owner_sections_are_stubs`, `tests/test_repository.py::test_story_files_are_stubs_with_one_owner_prompt_each` |
 | No first-person experience is written in the case study's drafted sections or in the stories | executed | `tests/test_repository.py::test_the_stories_contain_no_first_person_account`. Sections 1 to 3 of the case study were also read for it. |
 
 ### Phase 6: checks and final audit
@@ -88,6 +88,7 @@ Labels are those defined in [docs/verification.md](docs/verification.md): **exec
 | The README is written in phase 5 and the check script in phase 6 | The check script was written first, and committed in the phase 6 commit | So the README could cite real test ids. The README's cited ids exist from the phase 6 commit. |
 | CI runs pytest and the check | It also runs the mutate-to-red harness, and the check runs with `--strict-history` | So CI re-proves that every detection can fail and that the history is clean. |
 | Each hook under about 80 lines | `guard_bash.py` is 99 lines and `guard_lib.py` is about 170 | The wider write list, the secret patterns and the logging each needed code and a docstring. |
+| The agent writes no story and no owner section of the case study | At the owner's instruction on 2026-11-25, stories 02 to 04 and case study section 5 were drafted from the build record, each marked for review. Story 01 and section 4 stay stubs. | The owner asked for drafts. The drafts describe this build only and invent nothing. |
 | "Judgment" | The spelling is kept | The governing sentence is quoted as given, and the form is standard British usage. |
 | Run the kit's own gate on this repository | An independent read-only agent ran the kit's audit process, and its report was acted on | The builder cannot audit itself. See section 3. |
 | Phase 6 proof-integrity checks cite ids in the README, `docs/verification.md` and `example/` | The scope is the README, `docs/`, `demo/` and `example/` | The kit and templates hold generic sample ids that must not exist. |
@@ -202,7 +203,7 @@ The auditor's verdict was not changed. The decision clears the block under the k
    - **Check the new identity is the one you want public.** It is in every commit. If you change it later, repeat the rewrite and the strict check.
 
 2. **Confirm the licence and the name.** `LICENSE` is MIT with the holder you gave. Confirm both.
-3. **Write the four stories** in `stories/`, and **case study sections 4 and 5**. Delete each owner marker when you finish. `python scripts/check_rulebook.py` lists the markers that remain.
+3. **Story 01 and case study section 4 are still stubs for you to write.** Nothing of that kind happened in the build, so the agent did not invent it. Stories 02, 03 and 04 and case study section 5 were drafted by the agent on 2026-11-25, at your instruction, from the record of this build. Read each, correct what you cannot stand behind, and delete its marker. `python scripts/check_rulebook.py` lists the markers that remain.
 4. **Review case study sections 1 to 3.** They describe the method only.
 5. **Read every file for confidentiality with your own eyes.** The check looks for the terms on your list. It cannot know what else you would not want to publish.
 6. **Test the hooks in a live session.** Copy the kit into a scratch project, start Claude Code there, and ask it to edit `CLAUDE.md`. The edit should be blocked with a reason. Also check that `python3` is on the path and that Claude Code is version 2.1.295 or later, which `onFailure` needs.

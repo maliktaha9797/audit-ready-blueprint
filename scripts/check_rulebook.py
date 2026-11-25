@@ -247,11 +247,11 @@ def test_names_in(root: Path, module: str) -> set | None:
     return {node.name for node in ast.walk(tree) if isinstance(node, ast.FunctionDef)}
 
 
-PROOF_SCOPES = ("README.md", "docs/", "demo/", "example/")
+PROOF_SCOPES = ("README.md", "CASE-STUDY.md", "docs/", "demo/", "example/", "stories/")
 
 
 def check_proof_ids(root: Path, texts: dict) -> list[dict]:
-    """Every test id cited as proof in the README, docs, demo or example exists in tests/.
+    """Every test id cited as proof in the README, case study, docs, demo, example or stories exists in tests/.
 
     The kit and the templates are not checked: their test ids are generic samples.
     """

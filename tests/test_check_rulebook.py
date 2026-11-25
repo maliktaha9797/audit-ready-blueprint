@@ -202,6 +202,13 @@ def test_a_parametrised_id_is_checked_by_its_function_name(tmp_path):
     assert failed_checks(root) == []
 
 
+def test_a_missing_test_id_cited_in_the_stories_or_the_case_study_fails(tmp_path):
+    story = build(tmp_path / "a", {"stories/02.md": "Proof: `tests/test_sample.py::test_missing`.\n"})
+    assert failed_checks(story) == ["proof-integrity"]
+    case = build(tmp_path / "b", {"CASE-STUDY.md": "Proof: `tests/test_sample.py::test_missing`.\n"})
+    assert failed_checks(case) == ["proof-integrity"]
+
+
 def test_generic_sample_ids_in_the_kit_are_not_checked(tmp_path):
     root = build(tmp_path, {"kit/.claude/context/patterns.md": "Sample: `tests/test_sample.py::test_made_up`.\n"})
     assert failed_checks(root) == []
