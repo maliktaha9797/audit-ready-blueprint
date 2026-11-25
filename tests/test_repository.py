@@ -137,35 +137,29 @@ STORY_HEADINGS = ("What the agent tried to do", "Why that would have broken a ru
                   "What rule or check was added", "Where it lives now")
 
 
-def test_case_study_is_marked_draft_with_section_4_a_stub_and_section_5_a_marked_draft():
+def test_case_study_is_marked_draft_with_sections_4_and_5_marked_drafts():
     text = (REPO / "CASE-STUDY.md").read_text()
     assert "**DRAFT.**" in text.splitlines()[2]
     section4 = text.split("## 4. ")[1].split("## 5. ")[0]
     section5 = text.split("## 5. ")[1]
-    assert len(re.findall(STUB, section4)) == 1
-    assert len(re.findall(REVIEW, section5)) == 1
-    assert "Drafted by the agent" in section5
+    for section in (section4, section5):
+        assert len(re.findall(REVIEW, section)) == 1
+        assert "Drafted by the agent" in section
+    assert not re.search(STUB, text), "no stub should remain in the case study"
 
 
-def test_story_01_is_a_stub_and_the_drafted_stories_carry_a_review_marker_and_a_provenance_note():
+def test_every_story_is_a_marked_draft_with_a_provenance_note_and_story_01_says_it_is_not_a_real_records_episode():
     for name in ("01-real-data", "02-skipped-check", "03-gaming-the-test", "04-rulebook-drift"):
         text = (REPO / "stories" / (name + ".md")).read_text()
-        pattern = STUB if name == "01-real-data" else REVIEW
-        assert len(re.findall(pattern, text)) == 1, name
+        assert len(re.findall(REVIEW, text)) == 1, name
         assert len(re.findall(r"<!-- OWNER:", text)) == 1, name
         for heading in STORY_HEADINGS:
             assert "## " + heading in text, name + ": " + heading
-        if name != "01-real-data":
-            assert "Drafted by the agent that built this repository" in text, name
-            assert "It is not an account of earlier work." in text, name
-
-
-def test_story_01_is_left_a_stub_because_nothing_of_its_kind_happened_in_the_build():
-    text = (REPO / "stories" / "01-real-data.md").read_text()
-    body = re.sub(r"<!--.*?-->", "", text, flags=re.S)
-    assert "Drafted by the agent" not in body
-    readme = (REPO / "stories" / "README.md").read_text()
-    assert "Story 01 was not drafted" in readme
+        assert "Drafted by the agent that built this repository" in text, name
+        assert "It is not an account of earlier work." in text, name
+    story_01 = (REPO / "stories" / "01-real-data.md").read_text()
+    assert "This is not a story about testing against real records." in story_01
+    assert "If the owner has an episode of the first kind, it should replace this draft." in story_01
 
 
 def test_the_stories_contain_no_first_person_account():

@@ -1,6 +1,6 @@
 # Case study: setting up Claude Code for audited work
 
-**DRAFT.** Sections 1 to 3 describe the method as it appears in this repository, and the owner is to review them. Section 4 is for the owner to write from their own experience. Section 5 was drafted by the agent that built the repository, at the owner's instruction on 2026-11-25, from the record of that build, and the owner is to review it. Nothing in this file describes a past project, and the file must not be published until the markers are gone.
+**DRAFT.** Sections 1 to 3 describe the method as it appears in this repository, and the owner is to review them. Sections 4 and 5 were drafted by the agent that built the repository, at the owner's instruction on 2026-11-25, from the record of that build, and the owner is to review them. Nothing in this file describes a past project, and the file must not be published until the markers are gone.
 
 ---
 
@@ -53,7 +53,19 @@ The limits are stated in the kit. Hooks and deny rules raise the cost of breakin
 
 ## 4. What I stopped the agent from doing, and why
 
-<!-- OWNER: write this section yourself. Prompt: Describe two or three specific things you stopped an agent from doing while building audited software, and why each would have broken a rule. For each, say which file in the kit now carries the rule. Use only facts you can stand behind. Do not name any real employer, client, vendor, person or system. -->
+<!-- OWNER: review this draft, which the agent wrote from the build record, correct anything you cannot stand behind, and delete this marker when you are content to publish it. -->
+
+Drafted by the agent that built this repository, at the owner's instruction on 2026-11-25, from the record of this build: the owner's build brief, and the points at which the agent stopped. These are rules the owner set, and the agent held to them. They are not an account of earlier work.
+
+An agent that works quickly takes the shortest path unless a rule stands in the way. In this build the owner's rules stopped the agent at several points, and each is recorded here.
+
+**Searching the machine for a missing file.** The method document that the build started from was not in the folder. The quickest path was to search the rest of the machine for it. The clean-room rule said to work only in the empty folder, from the one permitted source, and to stop and ask if that source was missing. The agent stopped and asked, asked again when the file was still missing after the owner said it had been added, and used the file only once the owner supplied it. A search of the owner's machine could have read other projects and files that the owner never meant to include. The rule is carried now by [the generation prompt](templates/generation-prompt.md), which says to run it in a new, empty directory so that nothing else is read by mistake, and by the kit's rules on real data and secrets in `kit/.claude/guard.json` and `kit/.claude/settings.json`.
+
+**Changing the git identity, adding a remote, or pushing.** The brief said not to set or change the author identity, not to add a remote and not to push, because the owner reviews and publishes. The agent flagged at the first gate that the identity configured on the machine would appear on every commit, and left it alone. It rewrote the history only when the owner chose a name and an email and asked for it. It created the remote, privately, and pushed only when the owner said yes. One exception is recorded: after the first push the agent pushed a small documentation correction to the same private repository without asking again, and reported it. Publishing under the wrong identity cannot be undone by deleting a file, which is why the choice stays with the owner. The rule is carried now by `kit/.claude/settings.json`, where a plain `git push` asks first and forced pushes and publishing commands are denied, and by the blocked patterns in `kit/.claude/guard.json`.
+
+**Writing the owner's own account.** The brief said to leave the stories and two sections of the case study as marked stubs, to write no first-person experience and to invent no incidents. The agent left them. It drafted them from the record of the build only after the owner asked, and put a review marker on each draft. A story is a claim about something that happened, and a draft that invented one would be worse than a stub. The rule is carried now by the honesty labels in `kit/CLAUDE.md`, by [the stories README](stories/README.md), and by `scripts/check_rulebook.py`, which lists every owner marker still in the repository as a publication checklist.
+
+**Clearing a block or passing a gate.** The brief required the agent to stop at the human gates, and it stopped at each of them and waited. Later, independent audits returned BLOCK on the invariants for secrets, for the rulebook and for detections. The agent could have called them resolved after its own fixes. It did not. It reported each one, said what was fixed and what was not, and asked. The owner recorded a decision for each, and only then were they marked cleared. The rule is carried now by the human-gate stage of `kit/.claude/workflow-docs/build-phase.md` and by `kit/.claude/skills/invariants/SKILL.md`, which says that a block is cleared only by a fix or by the owner's recorded decision.
 
 ## 5. What went wrong
 
